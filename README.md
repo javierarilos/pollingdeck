@@ -1,3 +1,3 @@
-# Poller
-Easily create online&interactive polls, eg: during talks.
+# conoller
+Easily create online&interactive polls, eg: during conference talks.
 
