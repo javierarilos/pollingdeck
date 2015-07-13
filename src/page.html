@@ -12,7 +12,7 @@
             border:1px solid #dcdcdc;
             display:inline-block;
             cursor:pointer;
-            color:#666666;
+            color:#333333;
             font-family:monospace;
             font-size:12px;
             padding:6px 24px;
@@ -38,15 +38,16 @@
 <br/>
 <span id="poll-question" class="poll-question">Nice Poll</span>
 <br/>
-<br/>
 
 <span id="response-buttons"></span>
-
+<br/>
 <canvas id="myCanvas" width="500" height="500" style="border:1px solid #c3c3c3;">
     Your browser does not support the HTML5 canvas tag.
 </canvas>
 
 <script>
+    var currentPoll = null;
+
     var c = document.getElementById("myCanvas");
     var pollQuestion = document.getElementById("poll-question");
     var ctx = c.getContext("2d");
@@ -60,7 +61,7 @@
         xmlhttp.send('{"question": '+currentPoll+', "response": '+id+'}');
     };
 
-    function paintQuestionResults(i, question, count) {
+    function paintQuestionResult(i, question, count) {
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(10, (55 * (i + 1)), 500, 50);
         ctx.fillStyle = barColors[i];
@@ -70,8 +71,14 @@
         ctx.fillText(question + " votes: "+count, 15, (55 * (i + 1)) + 25);
     }
 
-    var results = 0;
-    var currentPoll = null;
+    function updatePollResults(pollResults){
+        var responses = pollResults.responses;
+        for(var i = 0; i < responses.length; i++) {
+            var currResult = responses[i];
+            console.log('updating result: ', currResult.id, currResult.text, currResult.count);
+            paintQuestionResult(currResult.id, currResult.text, currResult.count);
+        }
+    }
 
     function createResponseButton(id, text) {
         //<button id="0" onclick="submitPollResponse(this.id)">Question 0</button>
@@ -95,31 +102,26 @@
         });
     }
 
+    function processServerSentEvent(event){
+            console.log(">>>>>>>", event.data, event.event, arguments);
+            var pollResults = JSON.parse(event.data);
+
+            if (pollResults.type === 'close') {
+                pollQuestion.innerHTML = '::::: POLL IS CLOSED NOW ::::: <br/>' + pollQuestion.innerHTML;
+                return;
+            }
+
+            if (currentPoll !== pollResults.id) {
+                initializeResponseButtons(pollResults);
+                currentPoll = pollResults.id;
+                pollQuestion.innerHTML = pollResults.title;
+
+            }
+            updatePollResults(pollResults);
+    }
+
     var source = new EventSource('/poll?tout=10000');
-    source.addEventListener('message', function(e) {
-        console.log(">>>>>>>", e.data, e.event, arguments);
-        results += 1;
-        var pollResults = JSON.parse(e.data);
-
-        if (pollResults.type === 'close') {
-            pollQuestion.innerHTML = '::::: POLL IS CLOSED NOW ::::: <br/>' + pollQuestion.innerHTML;
-            return;
-        }
-
-        if (currentPoll !== pollResults.id) {
-            initializeResponseButtons(pollResults);
-            currentPoll = pollResults.id;
-            pollQuestion.innerHTML = pollResults.title;
-
-        }
-
-        var responses = pollResults.responses;
-        for(var i = 0; i < responses.length; i++) {
-            var currResult = responses[i];
-            console.log('updating result: ', currResult.id, currResult.text, currResult.count);
-            paintQuestionResults(currResult.id, currResult.text, currResult.count);
-        }
-    }, false);
+    source.addEventListener('message', processServerSentEvent, false);
 
     source.addEventListener('open', function(e) {
         console.log('Connection was opened.', e.event);
