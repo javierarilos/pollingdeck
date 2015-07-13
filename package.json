@@ -1,0 +1,11 @@
+{
+  "name": "polls",
+  "version": "1.0.0",
+  "description": "polls",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha -u tdd src/test/"
+  },
+  "author": "javier.arilos",
+  "license": "APACHE 2.0"
+}
