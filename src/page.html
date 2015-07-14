@@ -44,6 +44,13 @@
 <canvas id="myCanvas" width="500" height="500" style="border:1px solid #c3c3c3;">
     Your browser does not support the HTML5 canvas tag.
 </canvas>
+<br/>
+<span name="<!-- presenter-id -->" id="user-id">
+    <!-- presenter-sect -->
+
+</span>
+<br/>
+
 
 <script>
     var currentPoll = null;
@@ -52,6 +59,9 @@
     var pollQuestion = document.getElementById("poll-question");
     var ctx = c.getContext("2d");
     var barColors = ["#FF0000", "#00FF00", "#0000FF", "#FF00FF"];
+    var userId = document.getElementById('user-id').getAttribute("name");
+
+    console.log('My user id is:', userId);
 
     var submitPollResponse = function (id) {
         //curl -X POST --data '{"question": 0, "response": 2}' http://localhost:8125/response

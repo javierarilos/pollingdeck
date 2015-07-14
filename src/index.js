@@ -2,38 +2,71 @@ var http = require('http');
 var fs = require('fs');
 var path = require('path');
 
-function getNewPoll(){
-    return {
-        type: 'update',
-        title: 'Do you like JS?',
-        id: 0,
-        responses: [
-            {
-                id: 0,
-                text: "Yes! JS is amazing. Best ever!",
-                count: 0
-            },
-            {
-                id: 1,
-                text: "Yes... but it has its pros and cons...",
-                count: 0
-            },
-            {
-                id: 2,
-                text: "Not a lot... coding everywhere with the same language helps.",
-                count: 0
-            },
-            {
-                id: 3,
-                text: "Nope! it is such an ugly language!",
-                count: 0
-            }
-        ]};
+function getPolls(){
+    return [
+        {
+            type: 'update',
+            title: 'Do you like JS?',
+            id: 0,
+            responses: [
+                {
+                    id: 0,
+                    text: "Yes! JS is amazing. Best ever!",
+                    count: 0
+                },
+                {
+                    id: 1,
+                    text: "Yes... but it has its pros and cons...",
+                    count: 0
+                },
+                {
+                    id: 2,
+                    text: "Not a lot... coding everywhere with the same language helps.",
+                    count: 0
+                },
+                {
+                    id: 3,
+                    text: "Nope! it is such an ugly language!",
+                    count: 0
+                }
+            ]
+        },
+        {
+            type: 'update',
+            title: 'JS, Python or Java?',
+            id: 0,
+            responses: [
+                {
+                    id: 0,
+                    text: "JS always!",
+                    count: 0
+                },
+                {
+                    id: 1,
+                    text: "Python, batteries included.",
+                    count: 0
+                },
+                {
+                    id: 2,
+                    text: "Java & XML for the win.",
+                    count: 0
+                },
+                {
+                    id: 3,
+                    text: "Those are toys... I prefer BrainFuck",
+                    count: 0
+                }
+            ]
+        }
+    ];
 }
 
 var poll = null;
+var currentPoll = 0;
 var clientResponses = [];
 var helloInterval = null;
+var presenterId = null;
+var users = 0;
 
 
 function getRandomInt(min, max) {
@@ -64,36 +97,32 @@ http.createServer(function (req, res) {
     var urlPath = parsedUrl.pathname;
     if (urlPath == '/' || urlPath.indexOf('index.html') !== -1) {
         res.writeHead(200, {'Content-Type': 'text/html'});
-        var page = fs.readFileSync(path.join(__dirname, 'page.html'));
+        var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
+
+        if(parsedUrl.query.presenter === 'secret') {
+            console.log('========>>> generating presenter page.');
+            presenterId = Date.now();
+            page = page.replace('<!-- presenter-id -->', presenterId);
+            page = page.replace('<!-- presenter-sect -->', 'hello presenter!');
+        } else {
+            console.log('========>>> generating user page.');
+            users += 1;
+            page = page.replace('<!-- presenter-id -->', 'happy-user-'+users);
+        }
+
         return res.end(page);
     }
 
 
     if (urlPath.indexOf('poll') !== -1) {
-
         clientResponses.push(res);
         console.log('>>>>', req.url, req.headers);
-        console.log('>>>>', req.headers);
-        console.log('>>>>', parsedUrl);
         res.writeHead(200, {'Content-Type': 'text/event-stream'});
-        updateClients([res], poll);
 
-        if (!helloInterval) {
-            poll = getNewPoll();
-            console.log('############################################################# about to prepare intervals');
-            helloInterval = setInterval(function () {
-                //randomUpdatePoll(poll);
-                updateClients(clientResponses, poll);
-            }, 1000);
-
-            var tout = parsedUrl.query.tout || 5000;
-            setTimeout(function () {
-                clearInterval(helloInterval);
-                helloInterval = null;
-                endClients(clientResponses, {"type": "close"});
-                clientResponses = [];
-            }, 50000); //TODO. HARDCODED
+        if(!poll) { //init poll
+            poll = getPolls()[currentPoll];
         }
+        updateClients(clientResponses, poll);
         return;
     }
 
