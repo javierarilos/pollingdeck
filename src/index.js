@@ -101,9 +101,12 @@ http.createServer(function (req, res) {
 
         if(parsedUrl.query.presenter === 'secret') {
             console.log('========>>> generating presenter page.');
-            presenterId = Date.now();
+            presenterId = ""+Date.now();
             page = page.replace('<!-- presenter-id -->', presenterId);
-            page = page.replace('<!-- presenter-sect -->', 'hello presenter!');
+            //necessity: render an html piece in a page.
+            var presenterButtonsHtml =  '<input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
+                                        '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
+            page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
         } else {
             console.log('========>>> generating user page.');
             users += 1;
@@ -127,6 +130,7 @@ http.createServer(function (req, res) {
     }
 
     if (req.method === 'POST' && urlPath.indexOf('response') !== -1) {
+        //curl -X POST --data '{"question": 0, "response": 2}' http://localhost:8125/response
         var body = '';
         req.on('data', function(chunk) {
             console.log("Received body data:");
@@ -159,6 +163,41 @@ http.createServer(function (req, res) {
                 res.writeHead(400, msg, {'Content-Type': 'text/html'});
             }
             res.end();
+        });
+        return;
+    }
+
+    var isPageNextReq = urlPath.indexOf('next') !== -1;
+    var isPagePrevReq = urlPath.indexOf('prev') !== -1;
+
+    if (req.method === 'POST' && (isPageNextReq || isPagePrevReq)) {//necessity: proper req routing.
+        //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/prev -v
+        //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/next -v
+        var body = '';
+        req.on('data', function(chunk) {
+            body += chunk;
+        });
+
+        req.on('end', function() {
+
+            var pagingRequest = JSON.parse(body);
+            if (pagingRequest.userId !== presenterId) {//necessity: proper auth system.
+                var msg = '%%%==> pagingRequest NOT authorized: userId: '+pagingRequest.userId+' presenterId: ' + presenterId;
+                console.log(msg, pagingRequest);
+
+                res.writeHead(401, msg, {'Content-Type': 'text/html'});
+                return res.end();
+            }
+            console.log('%%%==> pagingRequest authorized', pagingRequest, urlPath);
+            res.writeHead(204, "Done.", {'Content-Type': 'text/html'});
+            res.end();
+            if(isPageNextReq) {
+                console.log('=========>>>>> NEXT');
+            } else {
+                console.log('=========>>>>> PREV');
+            }
+
+            return;
         });
         return;
     }

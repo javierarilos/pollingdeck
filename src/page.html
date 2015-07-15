@@ -65,11 +65,22 @@
 
     var submitPollResponse = function (id) {
         //curl -X POST --data '{"question": 0, "response": 2}' http://localhost:8125/response
-        var xmlhttp = new XMLHttpRequest()
+        var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("POST","response",true);
         xmlhttp.setRequestHeader("Content-type","application/json");
         xmlhttp.send('{"question": '+currentPoll+', "response": '+id+'}');
     };
+
+    var submitPagingRequest = function (type) {//type: next || prev
+        //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/prev -v
+        //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/next -v
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("POST",type,true);
+        xmlhttp.setRequestHeader("Content-type","application/json");
+        xmlhttp.send('{"userId": "'+userId+'"}');
+    };
+
+
 
     function paintQuestionResult(i, question, count) {
         ctx.fillStyle = "#FFFFFF";
