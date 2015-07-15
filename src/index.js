@@ -64,30 +64,12 @@ function getPolls(){
 var poll = null;
 var currentPoll = 0;
 var clientResponses = [];
-var helloInterval = null;
 var presenterId = null;
 var users = 0;
-
-
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-
-function randomUpdatePoll(pollToUpdate){
-    var responseVoted = getRandomInt(0, pollToUpdate.responses.length);
-    console.log('+ updating poll response:', responseVoted);
-    pollToUpdate.responses[responseVoted].count += 1;
-}
 
 function updateClients(responses, object) {
     responses.forEach(function (response) {
         response.write('data: '+JSON.stringify(object)+'\n\n');
-    })
-}
-
-function endClients(responses, object) {
-    responses.forEach(function (response) {
-        response.end('data: '+JSON.stringify(object)+'\n\n');
     })
 }
 
@@ -100,10 +82,10 @@ http.createServer(function (req, res) {
         var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
 
         if(parsedUrl.query.presenter === 'secret') {
-            console.log('========>>> generating presenter page.');
+            console.log('========>>> generating presenter page.');//TODO: templating?
             presenterId = ""+Date.now();
             page = page.replace('<!-- presenter-id -->', presenterId);
-            //necessity: render an html piece in a page.
+            //TODO: render an html piece in a page.
             var presenterButtonsHtml =  '<input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
                                         '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
             page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
@@ -170,7 +152,7 @@ http.createServer(function (req, res) {
     var isPageNextReq = urlPath.indexOf('next') !== -1;
     var isPagePrevReq = urlPath.indexOf('prev') !== -1;
 
-    if (req.method === 'POST' && (isPageNextReq || isPagePrevReq)) {//necessity: proper req routing.
+    if (req.method === 'POST' && (isPageNextReq || isPagePrevReq)) {//TODO: proper req routing.
         //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/prev -v
         //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/next -v
         var body = '';
@@ -181,7 +163,7 @@ http.createServer(function (req, res) {
         req.on('end', function() {
 
             var pagingRequest = JSON.parse(body);
-            if (pagingRequest.userId !== presenterId) {//necessity: proper auth system.
+            if (pagingRequest.userId !== presenterId) {//TODO: proper auth system.
                 var msg = '%%%==> pagingRequest NOT authorized: userId: '+pagingRequest.userId+' presenterId: ' + presenterId;
                 console.log(msg, pagingRequest);
 
