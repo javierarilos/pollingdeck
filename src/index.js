@@ -61,11 +61,15 @@ function getPolls(){
     ];
 }
 
-var poll = null;
+var polls = getPolls();
 var currentPoll = 0;
 var clientResponses = [];
 var presenterId = null;
 var users = 0;
+
+function getCurrentPoll() {
+    return polls[currentPoll];
+}
 
 function updateClients(responses, object) {
     responses.forEach(function (response) {
@@ -104,10 +108,7 @@ http.createServer(function (req, res) {
         console.log('>>>>', req.url, req.headers);
         res.writeHead(200, {'Content-Type': 'text/event-stream'});
 
-        if(!poll) { //init poll
-            poll = getPolls()[currentPoll];
-        }
-        updateClients(clientResponses, poll);
+        updateClients(clientResponses, getCurrentPoll());
         return;
     }
 
@@ -120,6 +121,7 @@ http.createServer(function (req, res) {
         });
 
         req.on('end', function() {
+            var poll = getCurrentPoll();
             // empty 200 OK response for now
             console.log('************************************************************* POST FINISHED');
             console.log('*****', body);
@@ -175,9 +177,17 @@ http.createServer(function (req, res) {
             res.end();
             if(isPageNextReq) {
                 console.log('=========>>>>> NEXT');
+                var numberOfPolls = polls.length;
+                if(currentPoll < numberOfPolls -1) {
+                    currentPoll += 1;
+                }
             } else {
                 console.log('=========>>>>> PREV');
+                if(currentPoll > 0) {
+                    currentPoll -= 1;
+                }
             }
+            updateClients(clientResponses, getCurrentPoll());
 
             return;
         });
