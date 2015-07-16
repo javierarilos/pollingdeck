@@ -14,7 +14,7 @@
             cursor:pointer;
             color:#333333;
             font-family:monospace;
-            font-size:12px;
+            font-size:14px;
             padding:6px 24px;
             text-decoration:none;
             text-shadow:0px 1px 0px #ffffff;
@@ -29,6 +29,18 @@
             font-weight:bold;
             padding:6px 24px;
             text-decoration:none;
+        }
+        .response-buttons {
+            float: left;
+        }
+
+        @media only screen and (max-width: 1000px) {
+            .poll-question {
+                font-size:28px;
+            }
+            .response-btn {
+                font-size:24px;
+            }
         }
 
     </style>
@@ -80,14 +92,18 @@
         xmlhttp.send('{"userId": "'+userId+'"}');
     };
 
-
+    function getCurrentButtonsFont() {
+        var but = document.getElementsByClassName("response-btn")[0];
+        return but.style.fontSize || 14;
+    }
 
     function paintQuestionResult(i, question, count) {
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(10, (55 * (i + 1)), 500, 50);
         ctx.fillStyle = barColors[i];
         ctx.fillRect(10, (55 * (i + 1)), 25 * count, 50);
-        ctx.font = "12px Courier, monospace";
+        var fontSize = getCurrentButtonsFont();
+        ctx.font = fontSize + "px Courier, monospace";
         ctx.fillStyle = "#000000";
         ctx.fillText(question + " votes: "+count, 15, (55 * (i + 1)) + 25);
     }

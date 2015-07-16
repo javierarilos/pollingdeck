@@ -197,5 +197,5 @@ http.createServer(function (req, res) {
     res.writeHead(404);
     res.end();
 
-}).listen(8125, "127.0.0.1");
-console.log('Server running at http://127.0.0.1:8125/');
+}).listen(8125, "0.0.0.0");
+console.log('Server running at http://0.0.0.0:8125/');
