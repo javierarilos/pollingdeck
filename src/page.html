@@ -53,7 +53,7 @@
 
 <span id="response-buttons"></span>
 <br/>
-<canvas id="poll-canvas" width="500" height="500" style="border:1px solid #c3c3c3;">
+<canvas id="poll-canvas" width="500" height="225" style="border:1px solid #c3c3c3;">
     Your browser does not support the HTML5 canvas tag.
 </canvas>
 <br/>
@@ -73,8 +73,7 @@
     var barColors = ["#FF0000", "#00FF00", "#0000FF", "#FF00FF"];
     var userId = document.getElementById('user-id').getAttribute("name");
 
-    ctx.canvas.width = 1000;
-    ctx.canvas.height = 1000;
+    ctx.canvas.width = window.innerWidth - (window.innerWidth * 0.01);
 
     console.log('My user id is:', userId);//TODO: properly storing userId
 
@@ -102,13 +101,13 @@
 
     function paintQuestionResult(i, question, count) {
         ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(10, (55 * (i + 1)), 500, 50);
+        ctx.fillRect(5, 5 + (55 * (i + 0)), 500, 50);
         ctx.fillStyle = barColors[i];
-        ctx.fillRect(10, (55 * (i + 1)), 25 * count, 50);
+        ctx.fillRect(5, 5 + (55 * (i + 0)), 25 * count, 50);
         var fontSize = getCurrentButtonsFont();
         ctx.font = fontSize + "px Courier, monospace";
         ctx.fillStyle = "#000000";
-        ctx.fillText(question + " votes: "+count, 15, (55 * (i + 1)) + 25);
+        ctx.fillText(question + " votes: "+count, 10, 5 + (55 * (i + 0)) + 25);
     }
 
     function updatePollResults(pollResults){
