@@ -63,6 +63,10 @@
 </span>
 <br/>
 
+<span id="xyz"/>
+<script>
+    xyz.innerHTML = "get rid of getElementById";
+</script>
 
 <script>
     var currentPoll = null;
@@ -110,6 +114,18 @@
         ctx.fillText(question + " votes: "+count, 10, 5 + (55 * (i + 0)) + 25);
     }
 
+    function updatePoll(poll) {
+        if (currentPoll !== poll.id) {
+            initializeResponseButtons(poll);
+            currentPoll = poll.id;
+            pollQuestion.innerHTML = poll.title;
+
+        }
+
+        updatePollResults(poll)
+
+    }
+
     function updatePollResults(pollResults){
         var responses = pollResults.responses;
         for(var i = 0; i < responses.length; i++) {
@@ -119,8 +135,10 @@
         }
     }
 
-    function createResponseButton(id, text) {
+    function createResponseButton(responseButtonsParent, id, text) {
         //<button id="0" onclick="submitPollResponse(this.id)">Question 0</button>
+
+
         //Create an input type dynamically.
         var element = document.createElement("input");
         //Assign different attributes to the element.
@@ -130,33 +148,26 @@
         element.name = 'response-'+id;
         element.onclick = submitPollResponse.bind(element, id);
         element.value = text;
-        var responseButtons = document.getElementById("response-buttons");
+
         //Append the element in page (in span).
-        responseButtons.appendChild(element);
+        responseButtonsParent.appendChild(element);
     }
 
     function initializeResponseButtons(pollResults) {
+        var responseButtons = document.getElementById("response-buttons");
+        while (responseButtons.firstChild) { //remove all existing buttons.
+            responseButtons.removeChild(responseButtons.firstChild);
+        }
+
         pollResults.responses.forEach(function(question){
-            createResponseButton(question.id, question.text);
+            createResponseButton(responseButtons, question.id, question.text);
         });
     }
 
     function processServerSentEvent(event){
-            console.log(">>>>>>>", event.data, event.event, arguments);
-            var pollResults = JSON.parse(event.data);
-
-            if (pollResults.type === 'close') {
-                pollQuestion.innerHTML = '::::: POLL IS CLOSED NOW ::::: <br/>' + pollQuestion.innerHTML;
-                return;
-            }
-
-            if (currentPoll !== pollResults.id) {
-                initializeResponseButtons(pollResults);
-                currentPoll = pollResults.id;
-                pollQuestion.innerHTML = pollResults.title;
-
-            }
-            updatePollResults(pollResults);
+        console.log(">>>>>>>", event.data, event.event, arguments);
+        var poll = JSON.parse(event.data);
+        updatePoll(poll);
     }
 
     var source = new EventSource('/poll?tout=10000');

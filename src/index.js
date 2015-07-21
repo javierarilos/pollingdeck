@@ -35,7 +35,7 @@ function getPolls(){
         {
             type: 'update',
             title: 'JS, Python or Java?',
-            id: 0,
+            id: 1,
             responses: [
                 {
                     id: 0,
