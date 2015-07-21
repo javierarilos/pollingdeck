@@ -23,19 +23,19 @@
             position:relative;
             top:1px;
         }
-        .poll-question {
+        .poll_question {
             font-family:monospace;
             font-size:18px;
             font-weight:bold;
             padding:6px 24px;
             text-decoration:none;
         }
-        .response-buttons {
+        .response_buttons {
             float: left;
         }
 
         @media only screen and (max-width: 1000px) {
-            .poll-question {
+            .poll_question {
                 font-size:28px;
             }
             .response-btn {
@@ -48,12 +48,12 @@
 </head>
 <body id="body">
 <br/>
-<span id="poll-question" class="poll-question">Nice Poll</span>
+<span id="poll_question" class="poll_question">Nice Poll</span>
 <br/>
 
-<span id="response-buttons"></span>
+<span id="response_buttons"></span>
 <br/>
-<canvas id="poll-canvas" width="500" height="225" style="border:1px solid #c3c3c3;">
+<canvas id="poll_canvas" width="500" height="225" style="border:1px solid #c3c3c3;">
     Your browser does not support the HTML5 canvas tag.
 </canvas>
 <br/>
@@ -71,9 +71,7 @@
 <script>
     var currentPoll = null;
 
-    var c = document.getElementById("poll-canvas");
-    var pollQuestion = document.getElementById("poll-question");
-    var ctx = c.getContext("2d");
+    var ctx = poll_canvas.getContext("2d");
     var barColors = ["#FF0000", "#00FF00", "#0000FF", "#FF00FF"];
     var userId = document.getElementById('user-id').getAttribute("name");
 
@@ -118,12 +116,10 @@
         if (currentPoll !== poll.id) {
             initializeResponseButtons(poll);
             currentPoll = poll.id;
-            pollQuestion.innerHTML = poll.title;
+            poll_question.innerHTML = poll.title;
 
         }
-
         updatePollResults(poll)
-
     }
 
     function updatePollResults(pollResults){
@@ -137,9 +133,6 @@
 
     function createResponseButton(responseButtonsParent, id, text) {
         //<button id="0" onclick="submitPollResponse(this.id)">Question 0</button>
-
-
-        //Create an input type dynamically.
         var element = document.createElement("input");
         //Assign different attributes to the element.
         element.type = 'button';
@@ -154,13 +147,12 @@
     }
 
     function initializeResponseButtons(pollResults) {
-        var responseButtons = document.getElementById("response-buttons");
-        while (responseButtons.firstChild) { //remove all existing buttons.
-            responseButtons.removeChild(responseButtons.firstChild);
+        while (response_buttons.firstChild) { //remove all existing buttons.
+            response_buttons.removeChild(response_buttons.firstChild);
         }
 
         pollResults.responses.forEach(function(question){
-            createResponseButton(responseButtons, question.id, question.text);
+            createResponseButton(response_buttons, question.id, question.text);
         });
     }
 
