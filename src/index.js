@@ -212,11 +212,47 @@ function postResponse (req, res) {
 
 }
 
+function postPagination(req, res){
+    //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/prev -v
+    //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/next -v
+    var urlPath = req.parsedUrl.pathname;
+    var isPageNextReq = urlPath.indexOf('next') !== -1;
+    var isPagePrevReq = urlPath.indexOf('prev') !== -1;
+
+    var pagingRequest = req.json;
+    if (pagingRequest.userId !== presenterId) {//TODO: proper auth system.
+        var msg = '%%%==> pagingRequest NOT authorized: userId: '+pagingRequest.userId+' presenterId: ' + presenterId;
+        console.log(msg, pagingRequest);
+
+        res.writeHead(401, msg, {'Content-Type': 'text/html'});
+        return res.end();
+    }
+    console.log('%%%==> pagingRequest authorized', pagingRequest, urlPath);
+    res.writeHead(204, "Done.", {'Content-Type': 'text/html'});
+    res.end();
+    if(isPageNextReq) {
+        console.log('=========>>>>> NEXT');
+        var numberOfPolls = polls.length;
+        if(currentPoll < numberOfPolls -1) {
+            currentPoll += 1;
+        }
+    } else {
+        console.log('=========>>>>> PREV');
+        if(currentPoll > 0) {
+            currentPoll -= 1;
+        }
+    }
+    updateClients(clientResponses, getCurrentPoll());
+
+    return;
+}
 
 router.get('/', getIndex);
 router.get('/index.html', getIndex);
 router.get('/poll', getPoll);
 router.post('/response', postResponse);
+router.post('/next', postPagination);
+router.post('/prev', postPagination);
 
 http.createServer(router.route()).listen(8126, "0.0.0.0");
 
