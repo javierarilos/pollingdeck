@@ -19,6 +19,9 @@
             text-decoration:none;
             text-shadow:0px 1px 0px #ffffff;
         }
+        .poll_canvas {
+            background-color:#f9f9f9;
+        }
         .response-btn:active {
             position:relative;
             top:1px;
@@ -102,8 +105,8 @@
     }
 
     function paintQuestionResult(i, question, count) {
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(5, 5 + (55 * (i + 0)), 500, 50);
+        //ctx.fillStyle = "#FFFFFF";
+
         ctx.fillStyle = barColors[i];
         ctx.fillRect(5, 5 + (55 * (i + 0)), 25 * count, 50);
         var fontSize = getCurrentButtonsFont();
@@ -119,11 +122,14 @@
             poll_question.innerHTML = poll.title;
 
         }
+
         updatePollResults(poll)
     }
 
     function updatePollResults(pollResults){
         var responses = pollResults.responses;
+        ctx.fillStyle = "#f9f9f9";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         for(var i = 0; i < responses.length; i++) {
             var currResult = responses[i];
             console.log('updating result: ', currResult.id, currResult.text, currResult.count);
