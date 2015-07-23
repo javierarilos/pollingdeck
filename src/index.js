@@ -3,7 +3,7 @@ var fs = require('fs');
 var path = require('path');
 var parseUrl = require('url').parse;
 
-function getPolls(){
+function getPollDefinitions(){
     return [
         {
             type: 'update',
@@ -62,7 +62,7 @@ function getPolls(){
     ];
 }
 
-var polls = getPolls();
+var polls = getPollDefinitions();
 var currentPoll = 0;
 var clientResponses = [];
 var presenterId = null;
