@@ -90,7 +90,9 @@ function decorateWithBody(func, req, res) {
     });
 
     req.on('end', function() {
-        req.json = JSON.parse(body);
+        try {
+            req.json = JSON.parse(body);
+        } catch (err) {}
         req.body = body;
         func(req, res);
     });
