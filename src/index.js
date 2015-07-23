@@ -138,7 +138,6 @@ var router = {
     route: function() {
         return function(req, res) {
             req.parsedUrl = parseUrl(req.url, true);
-            var urlPath = req.parsedUrl.pathname;
             var func = this.routeFor(req, res);
             func(req, res);
         }.bind(this);
