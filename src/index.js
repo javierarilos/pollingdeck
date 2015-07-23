@@ -111,22 +111,12 @@ var router = {
     },
     routeFor: function(req, res){
         var route;
-        switch (req.method) {
-            case 'GET':
-                var routes = this.getRoutes;
-                route = this.findMatch(routes, req);
-                break;
-            case 'POST':
-                routes = this.postRoutes;
-
-                var funcToApply = this.findMatch(routes, req);
-                console.log(' ++ funcToApply', funcToApply.name);
-                route = decorateWithBody(funcToApply, req, res);
-                break;
-        }
-
+        var routesArrName = req.method.toLowerCase()+'Routes';
+        var routes = this[routesArrName];
+        var funcToApply = this.findMatch(routes, req);
+        console.log(' ++ funcToApply', funcToApply.name);
+        route = decorateWithBody(funcToApply, req, res);
         return route;
-
     },
     findMatch: function(routes, req){
         var url = req.parsedUrl.pathname;
