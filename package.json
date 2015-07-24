@@ -1,11 +1,11 @@
 {
-  "name": "polls",
+  "name": "feedbacker",
   "version": "1.0.0",
-  "description": "polls",
+  "description": "Online interactive feedback application.",
   "main": "src/index.js",
   "scripts": {
     "test": "echo NO TESTS YET. SORRY :-S"
   },
-  "author": "javier.arilos",
+  "author": "javierarilos",
   "license": "APACHE 2.0"
 }
