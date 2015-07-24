@@ -1,3 +1,3 @@
-# conpoller
-Easily create online&interactive polls, eg: during conference talks.
+# Feedbacker
+Easily create online&interactive polls and get real-time feedback.
 
