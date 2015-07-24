@@ -6,70 +6,77 @@ var parseUrl = require('url').parse;
 function getPollDefinitions(){
     return [
         {
-            type: 'update',
-            title: 'Do you like JS?',
             id: 0,
-            responses: [
+            title: 'Talk on something very techie.',
+            questions: [
                 {
+                    type: 'update',
+                    title: 'Do you like JS?',
                     id: 0,
-                    text: "Yes! JS is amazing. Best ever!",
-                    count: 0
+                    responses: [
+                        {
+                            id: 0,
+                            text: "Yes! JS is amazing. Best ever!",
+                            count: 0
+                        },
+                        {
+                            id: 1,
+                            text: "Yes... but it has its pros and cons...",
+                            count: 0
+                        },
+                        {
+                            id: 2,
+                            text: "Not a lot... coding everywhere with the same language helps.",
+                            count: 0
+                        },
+                        {
+                            id: 3,
+                            text: "Nope! it is such an ugly language!",
+                            count: 0
+                        }
+                    ]
                 },
                 {
+                    type: 'update',
+                    title: 'JS, Python or Java?',
                     id: 1,
-                    text: "Yes... but it has its pros and cons...",
-                    count: 0
-                },
-                {
-                    id: 2,
-                    text: "Not a lot... coding everywhere with the same language helps.",
-                    count: 0
-                },
-                {
-                    id: 3,
-                    text: "Nope! it is such an ugly language!",
-                    count: 0
-                }
-            ]
-        },
-        {
-            type: 'update',
-            title: 'JS, Python or Java?',
-            id: 1,
-            responses: [
-                {
-                    id: 0,
-                    text: "JS always!",
-                    count: 0
-                },
-                {
-                    id: 1,
-                    text: "Python, batteries included.",
-                    count: 0
-                },
-                {
-                    id: 2,
-                    text: "Java & XML for the win.",
-                    count: 0
-                },
-                {
-                    id: 3,
-                    text: "Those are toys... I prefer BrainFuck",
-                    count: 0
+                    responses: [
+                        {
+                            id: 0,
+                            text: "JS always!",
+                            count: 0
+                        },
+                        {
+                            id: 1,
+                            text: "Python, batteries included.",
+                            count: 0
+                        },
+                        {
+                            id: 2,
+                            text: "Java & XML for the win.",
+                            count: 0
+                        },
+                        {
+                            id: 3,
+                            text: "Those are toys... I prefer BrainFuck",
+                            count: 0
+                        }
+                    ]
                 }
             ]
         }
     ];
 }
 
-var polls = getPollDefinitions();
 var currentPoll = 0;
+var poll = getPollDefinitions()[currentPoll];
+var currentQuestion = 0;
 var clientResponses = [];
 var presenterId = null;
 var users = 0;
 
-function getCurrentPoll() {
-    return polls[currentPoll];
+function getCurrentQuestion() {
+    return poll.questions[currentQuestion];
 }
 
 function updateClients(responses, object) {
@@ -169,25 +176,26 @@ function getPoll(req, res) {
     clientResponses.push(res);
     console.log('>>>>', req.url, req.headers);
     res.writeHead(200, {'Content-Type': 'text/event-stream'});
-
-    updateClients(clientResponses, getCurrentPoll());
+    var currQuestion = getCurrentQuestion();
+    console.log('#############################################################currQuestion', currQuestion);
+    updateClients(clientResponses, currQuestion);
     return;
 }
 
 function postResponse (req, res) {
-    var poll = getCurrentPoll();
+    var question = getCurrentQuestion();
     var pollResponse = req.json;
     console.log('***** response: question:', pollResponse.question, 'response:', pollResponse.response);
     if(typeof pollResponse.question === 'number' && typeof pollResponse.response === 'number' ) {
         console.log('***** correct response: question:', pollResponse.question, 'response:', pollResponse.response);
 
-        if(poll.id === pollResponse.question && pollResponse.response <= poll.responses.length - 1) {
+        if(question.id === pollResponse.question && pollResponse.response <= question.responses.length - 1) {
             console.log('*** question and response found. counting.');
-            poll.responses[pollResponse.response].count += 1;
-            updateClients(clientResponses, poll);
+            question.responses[pollResponse.response].count += 1;
+            updateClients(clientResponses, question);
             res.writeHead(200, "OK", {'Content-Type': 'text/html'});
         } else {
-            var msg = "Not found: curr poll: "+poll.id+" max response: "+ poll.responses.length -1;
+            var msg = "Not found: curr question: "+question.id+" max response: "+ question.responses.length -1;
             console.log('*** '+ msg);
             res.writeHead(404, msg, {'Content-Type': 'text/html'});
         }
@@ -223,17 +231,17 @@ function postPagination(req, res){
     res.end();
     if(isPageNextReq) {
         console.log('=========>>>>> NEXT');
-        var numberOfPolls = polls.length;
-        if(currentPoll < numberOfPolls -1) {
-            currentPoll += 1;
+        var numberOfPolls = poll.questions.length;
+        if(currentQuestion < numberOfPolls -1) {
+            currentQuestion += 1;
         }
     } else {
         console.log('=========>>>>> PREV');
-        if(currentPoll > 0) {
-            currentPoll -= 1;
+        if(currentQuestion > 0) {
+            currentQuestion -= 1;
         }
     }
-    updateClients(clientResponses, getCurrentPoll());
+    updateClients(clientResponses, getCurrentQuestion());
 
     return;
 }
