@@ -5,7 +5,17 @@ var fs = require('fs');
 var path = require('path');
 var parseUrl = require('url').parse;
 
-function getPollDefinitions(){
+function getUsers() {
+    return {
+        'secret': 'pass',
+        'root': 'root',
+        'javi': 'javi',
+        'presenter1': 'presenter1',
+        'presenter2': 'presenter2',
+    }
+}
+
+function getPollDefinitions() {
     return [
         {
             id: 0,
@@ -68,6 +78,14 @@ function getPollDefinitions(){
             ]
         }
     ];
+}
+
+function authorize(user, pass) {
+    console.log('>> user %s trying to login', user);
+    presenterId = ""+Date.now();
+    var authorized = getUsers()[user] === pass;
+    console.log('<< user %s is authorized: %s', user, authorized);
+    return authorized;
 }
 
 var currentPollId = 0;
@@ -156,15 +174,20 @@ var router = {
 function getIndex(req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
     var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
+    var user=req.parsedUrl.query.user;
+    var pass=req.parsedUrl.query.pass;
 
-    if(req.parsedUrl.query.presenter === 'secret') {
-        console.log('========>>> generating presenter page.');//TODO: templating?
-        presenterId = ""+Date.now();
-        page = page.replace('<!-- presenter-id -->', presenterId);
-        //TODO: render an html piece in a page.
-        var presenterButtonsHtml =  '<input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
-            '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
-        page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
+    if (user && pass) {
+        if ( authorize(user, pass)) {
+            page = page.replace('<!-- presenter-id -->', presenterId);
+            //TODO: render an html piece in a page.
+            var presenterButtonsHtml = '<input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
+                '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
+            page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
+        } else {
+            res.writeHead(401, {'Content-Type': 'text/html'});
+            res.end('Unauthorized');
+        }
     } else {
         console.log('========>>> generating user page.');
         users += 1;
