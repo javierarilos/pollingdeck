@@ -70,15 +70,15 @@ function getPollDefinitions(){
     ];
 }
 
-var currentPoll = 0;
-var poll = getPollDefinitions()[currentPoll];
+var currentPollId = 0;
+var currentPoll = getPollDefinitions()[currentPollId];
 var currentQuestion = 0;
 var clientResponses = [];
 var presenterId = null;
 var users = 0;
 
 function getCurrentQuestion() {
-    return poll.questions[currentQuestion];
+    return currentPoll.questions[currentQuestion];
 }
 
 function updateClients(responses, object) {
@@ -233,7 +233,7 @@ function postPagination(req, res){
     res.end();
     if(isPageNextReq) {
         console.log('=========>>>>> NEXT');
-        var numberOfPolls = poll.questions.length;
+        var numberOfPolls = currentPoll.questions.length;
         if(currentQuestion < numberOfPolls -1) {
             currentQuestion += 1;
         }
