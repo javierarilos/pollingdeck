@@ -88,8 +88,12 @@ function authorize(user, pass) {
     return authorized;
 }
 
+function initPoll(id){
+    return JSON.parse(JSON.stringify(getPollDefinitions()[id]));
+}
+
 var currentPollId = 0;
-var currentPoll = getPollDefinitions()[currentPollId];
+var currentPoll = initPoll(currentPollId);
 var currentQuestion = 0;
 var clientResponses = [];
 var presenterId = null;
