@@ -5,6 +5,8 @@ var fs = require('fs');
 var path = require('path');
 var parseUrl = require('url').parse;
 
+var presenterSessions = [];
+
 function getUsers() {
     return {
         'secret': 'pass',
@@ -183,11 +185,15 @@ function getIndex(req, res) {
 
     if (user && pass) {
         if ( authorize(user, pass)) {
+            var newSession = Date.now();
             page = page.replace('<!-- presenter-id -->', presenterId);
             //TODO: render an html piece in a page.
-            var presenterButtonsHtml = '<input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
+            var presenterButtonsHtml = '<span>Your session is: '+newSession+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
                 '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
             page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
+
+            presenterSessions.push(newSession);
+            res.writeHead(200, {'Set-Cookie': 'feedbacker-session='+newSession});
         } else {
             res.writeHead(401, {'Content-Type': 'text/html'});
             res.end('Unauthorized');
@@ -215,6 +221,7 @@ function postResponse (req, res) {
     var question = getCurrentQuestion();
     var pollResponse = req.json;
     console.log('***** response: question:', pollResponse.question, 'response:', pollResponse.response);
+    console.log('***** req.cookies:', req.headers.cookie);
     if(typeof pollResponse.question === 'number' && typeof pollResponse.response === 'number' ) {
         console.log('***** correct response: question:', pollResponse.question, 'response:', pollResponse.response);
 
