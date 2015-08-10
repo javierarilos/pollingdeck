@@ -5,6 +5,8 @@ var fs = require('fs');
 var path = require('path');
 var parseUrl = require('url').parse;
 
+var FEEDBACKER_MASTER='fdbckr-master';
+
 var presenterSessions = [];
 
 function getUsers() {
@@ -168,16 +170,43 @@ var router = {
         }
         return route;
     },
+    parseCookies: function(req) {
+        var parsedCookies = {};
+        var reqCookies = req.headers.cookie;
+        if (reqCookies) {
+            console.log('))))))))))))))))))))))) parsing cookies:', reqCookies);
+            var cookiesList = reqCookies.split(';').map(function (cookie) {
+                return cookie.split('=');
+            });
+
+            console.log('////////////////////// splitted cookies:', cookiesList);
+            for (var i = cookiesList.length - 1; i > -1; i--) {
+                var cookie = cookiesList[i];
+                var cookieName = cookie[0];
+                var cookieValue = cookie[1];
+                parsedCookies[cookieName] = cookieValue;
+            }
+        }
+        return parsedCookies;
+    },
     route: function() {
         return function(req, res) {
             req.parsedUrl = parseUrl(req.url, true);
+            req.cookies = this.parseCookies(req);
             var func = this.routeFor(req, res);
             func(req, res);
         }.bind(this);
     }
 };
 
+function newPresenterSession() {
+    var newSession = Date.now();
+    presenterSessions.push(newSession);
+    return newSession;
+}
+
 function getIndex(req, res) {
+    console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
     res.writeHead(200, {'Content-Type': 'text/html'});
     var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
     var user=req.parsedUrl.query.user;
@@ -185,15 +214,14 @@ function getIndex(req, res) {
 
     if (user && pass) {
         if ( authorize(user, pass)) {
-            var newSession = Date.now();
+            var newSession = newPresenterSession();
             page = page.replace('<!-- presenter-id -->', presenterId);
             //TODO: render an html piece in a page.
             var presenterButtonsHtml = '<span>Your session is: '+newSession+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
                 '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
             page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
 
-            presenterSessions.push(newSession);
-            res.writeHead(200, {'Set-Cookie': 'feedbacker-session='+newSession});
+            res.writeHead(200, {'Set-Cookie': FEEDBACKER_MASTER+'='+newSession});
         } else {
             res.writeHead(401, {'Content-Type': 'text/html'});
             res.end('Unauthorized');
@@ -208,6 +236,7 @@ function getIndex(req, res) {
 }
 
 function getPoll(req, res) {
+    console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
     clientResponses.push(res);
     console.log('>>>>', req.url, req.headers);
     res.writeHead(200, {'Content-Type': 'text/event-stream'});
@@ -219,6 +248,7 @@ function getPoll(req, res) {
 
 function postResponse (req, res) {
     var question = getCurrentQuestion();
+    console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
     var pollResponse = req.json;
     console.log('***** response: question:', pollResponse.question, 'response:', pollResponse.response);
     console.log('***** req.cookies:', req.headers.cookie);
