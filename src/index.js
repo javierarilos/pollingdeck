@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+var pollsProvider = require('./lib/pollDefinitionsProvider');
+
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
@@ -7,7 +9,7 @@ var parseUrl = require('url').parse;
 
 var FEEDBACKER_MASTER='fdbckr-master';
 
-var presenterSessions = [];
+var presenterSessions = {};
 
 function getUsers() {
     return {
@@ -15,73 +17,8 @@ function getUsers() {
         'root': 'root',
         'javi': 'javi',
         'presenter1': 'presenter1',
-        'presenter2': 'presenter2',
+        'presenter2': 'presenter2'
     }
-}
-
-function getPollDefinitions() {
-    return [
-        {
-            id: 0,
-            title: 'Talk on something very techie.',
-            questions: [
-                {
-                    type: 'update',
-                    title: 'Do you like JS?',
-                    id: 0,
-                    responses: [
-                        {
-                            id: 0,
-                            text: "Yes! JS is amazing. Best ever!",
-                            count: 0
-                        },
-                        {
-                            id: 1,
-                            text: "Yes... but it has its pros and cons...",
-                            count: 0
-                        },
-                        {
-                            id: 2,
-                            text: "Not a lot... coding everywhere with the same language helps.",
-                            count: 0
-                        },
-                        {
-                            id: 3,
-                            text: "Nope! it is such an ugly language!",
-                            count: 0
-                        }
-                    ]
-                },
-                {
-                    type: 'update',
-                    title: 'JS, Python or Java?',
-                    id: 1,
-                    responses: [
-                        {
-                            id: 0,
-                            text: "JS always!",
-                            count: 0
-                        },
-                        {
-                            id: 1,
-                            text: "Python, batteries included.",
-                            count: 0
-                        },
-                        {
-                            id: 2,
-                            text: "Java & XML for the win.",
-                            count: 0
-                        },
-                        {
-                            id: 3,
-                            text: "Those are toys... I prefer BrainFuck",
-                            count: 0
-                        }
-                    ]
-                }
-            ]
-        }
-    ];
 }
 
 function authorize(user, pass) {
@@ -92,12 +29,9 @@ function authorize(user, pass) {
     return authorized;
 }
 
-function initPoll(id){
-    return JSON.parse(JSON.stringify(getPollDefinitions()[id]));
-}
-
 var currentPollId = 0;
-var currentPoll = initPoll(currentPollId);
+var currentUser;
+var currentPoll;
 var currentQuestion = 0;
 var clientResponses = [];
 var presenterId = null;
@@ -199,9 +133,9 @@ var router = {
     }
 };
 
-function newPresenterSession() {
+function newPresenterSession(user) {
     var newSession = Date.now();
-    presenterSessions.push(newSession);
+    presenterSessions[user] = newSession;
     return newSession;
 }
 
@@ -214,7 +148,9 @@ function getIndex(req, res) {
 
     if (user && pass) {
         if ( authorize(user, pass)) {
-            var newSession = newPresenterSession();
+            currentUser = user;
+            currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
+            var newSession = newPresenterSession(currentUser);
             page = page.replace('<!-- presenter-id -->', presenterId);
             //TODO: render an html piece in a page.
             var presenterButtonsHtml = '<span>Your session is: '+newSession+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
