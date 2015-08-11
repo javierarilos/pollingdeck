@@ -55,7 +55,6 @@ function newPresenterSession(user) {
 
 function getIndex(req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
-    res.writeHead(200, {'Content-Type': 'text/html'});
     var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
     var user=req.parsedUrl.query.user;
     var pass=req.parsedUrl.query.pass;
@@ -71,7 +70,7 @@ function getIndex(req, res) {
                 '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
             page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
 
-            res.writeHead(200, {'Set-Cookie': FEEDBACKER_MASTER+'='+newSession});
+            res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_MASTER+'='+newSession});
         } else {
             res.writeHead(401, {'Content-Type': 'text/html'});
             res.end('Unauthorized');
