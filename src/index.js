@@ -79,6 +79,7 @@ function getIndex(req, res) {
         console.log('========>>> generating user page.');
         users += 1;
         page = page.replace('<!-- presenter-id -->', 'happy-user-'+users);
+        res.writeHead(200, {'Content-Type': 'text/html');
     }
 
     return res.end(page);
