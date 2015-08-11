@@ -132,7 +132,6 @@ function postPagination(req, res){
     //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/next -v
     var urlPath = req.parsedUrl.pathname;
     var isPageNextReq = urlPath.indexOf('next') !== -1;
-    var isPagePrevReq = urlPath.indexOf('prev') !== -1;
 
     var pagingRequest = req.json;
     if (pagingRequest.userId !== presenterId) {//TODO: proper auth system.
