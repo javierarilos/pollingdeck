@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var pollsProvider = require('./lib/pollDefinitionsProvider');
+var pollsProvider = require('./lib/pollsProvider');
 
 var http = require('http');
 var fs = require('fs');
