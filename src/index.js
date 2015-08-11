@@ -48,9 +48,9 @@ function updateClients(responses, object) {
 }
 
 function newPresenterSession(user) {
-    var newSession = Date.now();
-    presenterSessions[user] = newSession;
-    return newSession;
+    var sessionId = Date.now();
+    presenterSessions[user] = {id: sessionId, user: user};
+    return sessionId;
 }
 
 function getIndex(req, res) {
@@ -63,14 +63,14 @@ function getIndex(req, res) {
         if ( authorize(user, pass)) {
             currentUser = user;
             currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
-            var newSession = newPresenterSession(currentUser);
+            var sessionId = newPresenterSession(currentUser);
             page = page.replace('<!-- presenter-id -->', presenterId);
             //TODO: render an html piece in a page.
-            var presenterButtonsHtml = '<span>Your session is: '+newSession+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
+            var presenterButtonsHtml = '<span>Your session is: '+sessionId+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
                 '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
             page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
 
-            res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_MASTER+'='+newSession});
+            res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_MASTER+'='+sessionId});
         } else {
             res.writeHead(401, {'Content-Type': 'text/html'});
             res.end('Unauthorized');
