@@ -3,7 +3,7 @@ var presenterSessions = {};
 
 function newPresenterSession(user) {
     var sessionId = Date.now();
-    presenterSessions[user] = {id: sessionId, user: user};
+    presenterSessions[sessionId] = {id: sessionId, user: user};
     return sessionId;
 }
 
