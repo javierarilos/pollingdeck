@@ -2,14 +2,13 @@
 
 var pollsProvider = require('./lib/pollsProvider');
 var router = require('./lib/router').getInstance();
+var sessionManager = require('./lib/sessionManager');
 
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
 
 var FEEDBACKER_MASTER='fdbckr-master';
-
-var presenterSessions = {};
 
 function getUsers() {
     return {
@@ -47,12 +46,6 @@ function updateClients(responses, object) {
     })
 }
 
-function newPresenterSession(user) {
-    var sessionId = Date.now();
-    presenterSessions[user] = {id: sessionId, user: user};
-    return sessionId;
-}
-
 function getIndex(req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
     var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
@@ -63,7 +56,7 @@ function getIndex(req, res) {
         if ( authorize(user, pass)) {
             currentUser = user;
             currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
-            var sessionId = newPresenterSession(currentUser);
+            var sessionId = sessionManager.newPresenterSession(currentUser);
             page = page.replace('<!-- presenter-id -->', presenterId);
             //TODO: render an html piece in a page.
             var presenterButtonsHtml = '<span>Your session is: '+sessionId+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
