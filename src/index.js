@@ -3,30 +3,13 @@
 var pollsProvider = require('./lib/pollsProvider');
 var router = require('./lib/router').getInstance();
 var sessionManager = require('./lib/sessionManager');
+var auth = require('./lib/auth');
 
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
 
 var FEEDBACKER_MASTER='fdbckr-master';
-
-function getUsers() {
-    return {
-        'secret': 'pass',
-        'root': 'root',
-        'javi': 'javi',
-        'presenter1': 'presenter1',
-        'presenter2': 'presenter2'
-    }
-}
-
-function authorize(user, pass) {
-    console.log('>> user %s trying to login', user);
-    presenterId = ""+Date.now();
-    var authorized = getUsers()[user] === pass;
-    console.log('<< user %s is authorized: %s', user, authorized);
-    return authorized;
-}
 
 var currentPollId = 0;
 var currentUser;
@@ -49,33 +32,31 @@ function updateClients(responses, object) {
 function getIndex(req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
     var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
-    var user=req.parsedUrl.query.user;
-    var pass=req.parsedUrl.query.pass;
+    if (auth.isAuthorized(req)) {
+        currentUser = req.parsedUrl.query.user;
+        currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
+        var sessionId = sessionManager.newPresenterSession(currentUser);
+        page = page.replace('<!-- presenter-id -->', presenterId);
+        //TODO: render an html piece in a page.
+        var presenterButtonsHtml = '<span>Your session is: '+sessionId+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
+            '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
+        page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
 
-    if (user && pass) {
-        if ( authorize(user, pass)) {
-            currentUser = user;
-            currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
-            var sessionId = sessionManager.newPresenterSession(currentUser);
-            page = page.replace('<!-- presenter-id -->', presenterId);
-            //TODO: render an html piece in a page.
-            var presenterButtonsHtml = '<span>Your session is: '+sessionId+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
-                '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
-            page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
-
-            res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_MASTER+'='+sessionId});
-        } else {
-            res.writeHead(401, {'Content-Type': 'text/html'});
-            res.end('Unauthorized');
-        }
+        res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_MASTER+'='+sessionId});
+        return res.end(page);
     } else {
-        console.log('========>>> generating user page.');
-        users += 1;
-        page = page.replace('<!-- presenter-id -->', 'happy-user-'+users);
-        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.writeHead(401, {'Content-Type': 'text/html'});
+        return res.end('Unauthorized');
     }
+}
 
-    return res.end(page);
+function getUserPage(req, res) {
+    console.log('========>>> generating user page.');
+    users += 1;
+    var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
+    page = page.replace('<!-- presenter-id -->', 'happy-user-'+users);
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.end(page);
 }
 
 function getPoll(req, res) {
@@ -157,6 +138,7 @@ function postPagination(req, res){
 router.get('/', getIndex);
 router.get('/index.html', getIndex);
 router.get('/poll', getPoll);
+router.get('/join', getUserPage);
 router.post('/response', postResponse);
 router.post('/next', postPagination);
 router.post('/prev', postPagination);
