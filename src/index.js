@@ -9,7 +9,7 @@ var http = require('http');
 var fs = require('fs');
 var path = require('path');
 
-var FEEDBACKER_MASTER='fdbckr-master';
+var FEEDBACKER_SESS='fdbckr-sess';
 
 var currentPollId = 0;
 var currentUser;
@@ -39,13 +39,13 @@ function getIndex(req, res) {
         currentUser = req.parsedUrl.query.user;
         currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
         var sessionId = sessionManager.newPresenterSession(currentUser);
-        page = page.replace('<!-- presenter-id -->', auth.getPresenterId());
+        page = page.replace('<!-- session-id -->', sessionId);
         //TODO: render an html piece in a page.
         var presenterButtonsHtml = '<span>Your session is: '+sessionId+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
             '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
         page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
 
-        res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_MASTER+'='+sessionId});
+        res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_SESS+'='+sessionId});
         return res.end(page);
     } else {
         res.writeHead(401, {'Content-Type': 'text/html'});
@@ -63,7 +63,7 @@ function getUserPage(req, res) {
     console.log('========>>> generating user page.');
     users += 1;
     var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
-    page = page.replace('<!-- presenter-id -->', 'happy-user-'+users);
+    page = page.replace('<!-- session-id -->', 'happy-user-'+users);
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(page);
     return;
@@ -112,19 +112,20 @@ function postResponse (req, res) {
 }
 
 function postPagination(req, res){
-    //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/prev -v
-    //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/next -v
+    //curl -X POST --data '{"sessionId": "lksdjflsdkjf"}' http://localhost:8125/prev -v
+    //curl -X POST --data '{"sessionId": "lksdjflsdkjf"}' http://localhost:8125/next -v
     var urlPath = req.parsedUrl.pathname;
     var isPageNextReq = urlPath.indexOf('next') !== -1;
-
     var pagingRequest = req.json;
-    if (pagingRequest.userId !== auth.getPresenterId()) {//TODO: proper auth system.
-        var msg = '%%%==> pagingRequest NOT authorized: userId: '+pagingRequest.userId+' presenterId: ' + auth.getPresenterId();
+
+    if (! sessionManager.getSession(pagingRequest.sessionId)) {
+        var msg = '%%%==> pagingRequest NOT authorized: sessionId: '+pagingRequest.sessionId+' presenterId: ' + sessionManager.getSession(pagingRequest.sessionId);
         console.log(msg, pagingRequest);
 
         res.writeHead(401, msg, {'Content-Type': 'text/html'});
         return res.end();
     }
+
     console.log('%%%==> pagingRequest authorized', pagingRequest, urlPath);
     res.writeHead(204, "Done.", {'Content-Type': 'text/html'});
     res.end();

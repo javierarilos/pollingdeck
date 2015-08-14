@@ -1,5 +1,3 @@
-var presenterId = null;
-
 function getUsers() {
     return {
         'secret': 'pass',
@@ -13,9 +11,6 @@ function getUsers() {
 function authorize(user, pass) {
     console.log('>> user %s trying to login', user);
     var authorized = user && pass && getUsers()[user] === pass;
-    if (authorized) {
-        presenterId = "" + Date.now();
-    }
     console.log('<< user %s is authorized: %s', user, authorized);
     return authorized;
 }
@@ -26,9 +21,4 @@ function isAuthorized(req) {
     return authorize(user, pass);
 }
 
-function getPresenterId() {
-    return presenterId;
-}
-
 module.exports.isAuthorized = isAuthorized;
-module.exports.getPresenterId = getPresenterId;
