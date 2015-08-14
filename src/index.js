@@ -56,7 +56,7 @@ function getIndex(req, res) {
 function getUserPage(req, res) {
     if (!getCurrentQuestion()) {
         res.writeHead(404, {'Content-Type': 'text/html'});
-        res.end('<body>No poll initialized yet.<body/>');
+        res.end('<body>No presenter session initialized yet. </br> Please try later.<body/>');
         return;
     }
 
