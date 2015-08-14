@@ -12,7 +12,7 @@ function getSession(sessionId) {
 }
 
 function getSessionByUser(user) {
-    var session = null;
+    var session;
     for (var sessionId in presenterSessions) {
         session = presenterSessions[sessionId];
         if(session.user === user) {
@@ -21,6 +21,7 @@ function getSessionByUser(user) {
     }
     return session;
 }
+
 module.exports.newPresenterSession = newPresenterSession;
 module.exports.getSession = getSession;
 module.exports.getSessionByUser = getSessionByUser;
