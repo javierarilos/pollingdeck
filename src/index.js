@@ -19,6 +19,10 @@ var clientResponses = [];
 var users = 0;
 
 function getCurrentQuestion() {
+    if (!currentPoll || !currentPoll.questions) {
+        return null;
+    }
+
     return currentPoll.questions[currentQuestion];
 }
 
@@ -50,12 +54,19 @@ function getIndex(req, res) {
 }
 
 function getUserPage(req, res) {
+    if (!getCurrentQuestion()) {
+        res.writeHead(404, {'Content-Type': 'text/html'});
+        res.end('<body>No poll initialized yet.<body/>');
+        return;
+    }
+
     console.log('========>>> generating user page.');
     users += 1;
     var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
     page = page.replace('<!-- presenter-id -->', 'happy-user-'+users);
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(page);
+    return;
 }
 
 function getPoll(req, res) {
