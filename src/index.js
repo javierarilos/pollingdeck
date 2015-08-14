@@ -16,7 +16,6 @@ var currentUser;
 var currentPoll;
 var currentQuestion = 0;
 var clientResponses = [];
-var presenterId = null;
 var users = 0;
 
 function getCurrentQuestion() {
@@ -36,7 +35,7 @@ function getIndex(req, res) {
         currentUser = req.parsedUrl.query.user;
         currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
         var sessionId = sessionManager.newPresenterSession(currentUser);
-        page = page.replace('<!-- presenter-id -->', presenterId);
+        page = page.replace('<!-- presenter-id -->', auth.getPresenterId());
         //TODO: render an html piece in a page.
         var presenterButtonsHtml = '<span>Your session is: '+sessionId+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
             '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
@@ -108,8 +107,8 @@ function postPagination(req, res){
     var isPageNextReq = urlPath.indexOf('next') !== -1;
 
     var pagingRequest = req.json;
-    if (pagingRequest.userId !== presenterId) {//TODO: proper auth system.
-        var msg = '%%%==> pagingRequest NOT authorized: userId: '+pagingRequest.userId+' presenterId: ' + presenterId;
+    if (pagingRequest.userId !== auth.getPresenterId()) {//TODO: proper auth system.
+        var msg = '%%%==> pagingRequest NOT authorized: userId: '+pagingRequest.userId+' presenterId: ' + auth.getPresenterId();
         console.log(msg, pagingRequest);
 
         res.writeHead(401, msg, {'Content-Type': 'text/html'});

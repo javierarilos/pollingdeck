@@ -1,3 +1,5 @@
+var presenterId = null;
+
 function getUsers() {
     return {
         'secret': 'pass',
@@ -22,4 +24,9 @@ function isAuthorized(req) {
     return authorize(user, pass);
 }
 
+function getPresenterId() {
+    return presenterId;
+}
+
 module.exports.isAuthorized = isAuthorized;
+module.exports.getPresenterId = getPresenterId;
