@@ -12,8 +12,10 @@ function getUsers() {
 
 function authorize(user, pass) {
     console.log('>> user %s trying to login', user);
-    presenterId = ""+Date.now();
-    var authorized = getUsers()[user] === pass;
+    var authorized = user && pass && getUsers()[user] === pass;
+    if (authorized) {
+        presenterId = "" + Date.now();
+    }
     console.log('<< user %s is authorized: %s', user, authorized);
     return authorized;
 }
