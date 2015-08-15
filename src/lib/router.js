@@ -26,10 +26,18 @@ var router = {
     getRoutes: [],
     postRoutes: [],
     post: function(path, func) {
-        this.postRoutes.push({path: path, func: func})
+        var expression = path;
+        if (expression.constructor !== RegExp) {
+            expression = new RegExp(expression);
+        }
+        this.postRoutes.push({path: expression, func: func})
     },
     get: function(path, func) {
-        this.getRoutes.push({path: path, func: func})
+        var expression = path;
+        if (expression.constructor !== RegExp) {
+            expression = new RegExp(expression);
+        }
+        this.getRoutes.push({path: expression, func: func})
     },
     routeFor: function(req, res){
         var route;
@@ -45,11 +53,10 @@ var router = {
         console.log('>>>> req.parsedUrl', url, req.method);
         var route = httpNotFound;
         var currRoute;
-        //return this.getRoutes[0].func; //TODO: IMPLEMENT.
         for(var i = 0; i < routes.length; i ++){
             currRoute = routes[i];
             console.log('checking:', url, 'against:', currRoute.path);
-            if (currRoute.path === url) {
+            if (url.match(currRoute.path)) {
                 console.log('Found route!');
                 route = currRoute.func;
                 break;

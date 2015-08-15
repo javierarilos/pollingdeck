@@ -146,10 +146,11 @@ function postPagination(req, res){
     return;
 }
 
-router.get('/', getIndex);
+
 router.get('/index.html', getIndex);
 router.get('/poll', getPoll);
 router.get('/join', getUserPage);
+router.get('/', getIndex);
 router.post('/response', postResponse);
 router.post('/next', postPagination);
 router.post('/prev', postPagination);
