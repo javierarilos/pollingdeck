@@ -99,7 +99,12 @@
 
     function getCurrentButtonsFont() {
         var but = document.getElementsByClassName("response-btn")[0];
-        return but.style.fontSize || 14;
+        var styleSize = but.style.fontSize;
+        //get computedStyle
+        var style = window.getComputedStyle(but, null).getPropertyValue('font-size');
+        var computedFontSize = parseFloat(style);
+
+        return styleSize || computedFontSize || 14;
     }
 
     function paintQuestionResult(i, question, count) {
