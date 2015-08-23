@@ -71,12 +71,15 @@
 
 <script>
     var currentPollId = null;
+    var currentPoll = null;
 
     var ctx = poll_canvas.getContext("2d");
     var barColors = ["#FF0000", "#00FF00", "#0000FF", "#FF00FF"];
     var sessionId = document.getElementById('session-id').getAttribute("name");
 
-    ctx.canvas.width = window.innerWidth - (window.innerWidth * 0.01);
+    function initCanvas() {
+        ctx.canvas.width = window.innerWidth - (window.innerWidth * 0.01);
+    }
 
     console.log('My user id is:', sessionId);//TODO: properly storing userId
 
@@ -122,11 +125,12 @@
         if (currentPollId !== poll.id) {
             initializeResponseButtons(poll);
             currentPollId = poll.id;
+            currentPoll = poll;
             poll_question.innerHTML = poll.title;
 
         }
 
-        updatePollResults(poll)
+        updatePollResults(poll);
     }
 
     function updatePollResults(pollResults){
@@ -171,8 +175,15 @@
         updatePoll(poll);
     }
 
+    initCanvas();
+
     var source = new EventSource('/poll?tout=10000');
     source.addEventListener('message', processServerSentEvent, false);
+
+    window.onresize = function () {
+        initCanvas();
+        updatePollResults(currentPoll);
+    }
 
     source.addEventListener('open', function(e) {
         console.log('Connection was opened.', e.event);
