@@ -70,7 +70,7 @@
 <br/>
 
 <script>
-    var currentPoll = null;
+    var currentPollId = null;
 
     var ctx = poll_canvas.getContext("2d");
     var barColors = ["#FF0000", "#00FF00", "#0000FF", "#FF00FF"];
@@ -85,7 +85,7 @@
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("POST","response",true);
         xmlhttp.setRequestHeader("Content-type","application/json");
-        xmlhttp.send('{"question": '+currentPoll+', "response": '+id+'}');
+        xmlhttp.send('{"question": '+currentPollId+', "response": '+id+'}');
     };
 
     var submitPagingRequest = function (type) {//type: next || prev
@@ -119,9 +119,9 @@
     }
 
     function updatePoll(poll) {
-        if (currentPoll !== poll.id) {
+        if (currentPollId !== poll.id) {
             initializeResponseButtons(poll);
-            currentPoll = poll.id;
+            currentPollId = poll.id;
             poll_question.innerHTML = poll.title;
 
         }
