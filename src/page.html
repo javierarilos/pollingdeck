@@ -40,12 +40,12 @@
             float: left;
         }
 
-        @media only screen and (max-width: 1000px) {
+        @media only screen and (max-width: 700px) {
             .poll_question {
-                font-size:28px;
+                font-size:18px;
             }
             .response-btn {
-                font-size:24px;
+                font-size:16px;
             }
         }
 
@@ -121,7 +121,7 @@
         var fontSize = getCurrentButtonsFont();
         ctx.font = fontSize + "px Courier, monospace";
         ctx.fillStyle = "#000000";
-        ctx.fillText(question + " votes: "+count, 10, 5 + (55 * (i + 0)) + 25);
+        ctx.fillText(question + " ["+count+"]", 10, 5 + (55 * (i + 0)) + 25);
     }
 
     function updatePoll(poll) {

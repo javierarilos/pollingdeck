@@ -14,22 +14,22 @@ var defaultPollDefinitions = [
                 responses: [
                     {
                         id: 0,
-                        text: "Yes! JS is amazing. Best ever!",
+                        text: "Yes. JS is amazing!",
                         count: 0
                     },
                     {
                         id: 1,
-                        text: "Yes... but it has its pros and cons...",
+                        text: "Not bad...",
                         count: 0
                     },
                     {
                         id: 2,
-                        text: "Not a lot... coding everywhere with the same language helps.",
+                        text: "Not but allows coding everywhere.",
                         count: 0
                     },
                     {
                         id: 3,
-                        text: "Nope! it is such an ugly language!",
+                        text: "Nope! it is so ugly!",
                         count: 0
                     }
                 ]
@@ -56,7 +56,7 @@ var defaultPollDefinitions = [
                     },
                     {
                         id: 3,
-                        text: "Those are toys... I prefer BrainFuck",
+                        text: "I only code functional.",
                         count: 0
                     }
                 ]
