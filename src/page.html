@@ -83,6 +83,7 @@
 
 <script>
     var currentPoll = null;
+    var responseLabels = [];
 
     function getCurrentPollId(){
         return currentPoll && currentPoll.id;
@@ -153,16 +154,27 @@
 
     function updatePoll(poll) {
         if (getCurrentPollId() !== poll.id) {
+            responseLabels = [];
             initializeResponseButtons(poll);
             currentPoll = poll;
             poll_question.innerHTML = poll.title;
-
         }
-
         updatePollResults(poll);
     }
 
     function updatePollResults(pollResults){
+      updatePollResultsCanvas(pollResults);
+      updatePollResultsButtons(pollResults);
+    }
+
+    function updatePollResultsButtons(pollResults){
+      pollResults.responses.forEach(function(question, index){
+        var currLabel = responseLabels[index];
+        currLabel.innerHTML = question.text + " [" +  question.count + "]";
+      });
+    }
+
+    function updatePollResultsCanvas(pollResults){
         var responses = pollResults.responses;
         ctx.fillStyle = "#f9f9f9";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -191,15 +203,16 @@
         //Append the element in page (in span).
         responseButtonsParent.appendChild(element);
         responseButtonsParent.appendChild(label);
+        return label;
     }
 
     function initializeResponseButtons(pollResults) {
         while (response_buttons.firstChild) { //remove all existing buttons.
             response_buttons.removeChild(response_buttons.firstChild);
         }
-
         pollResults.responses.forEach(function(question){
-            createResponseButton(response_buttons, question.id, question.text);
+            var label = createResponseButton(response_buttons, question.id, question.text);
+            responseLabels.push(label);
         });
     }
 
