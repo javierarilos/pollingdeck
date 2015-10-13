@@ -20,6 +20,14 @@
             text-decoration:none;
             text-shadow:0px 1px 0px #ffffff;
         }
+
+        .circle {
+          border-radius: 50%;
+	        width: 20px;
+	        height: 20px;
+          background-color: orange
+        }
+
         #poll_canvas {
             background-color:#f9f9f9;
             border:1px solid #c3c3c3;
@@ -57,7 +65,11 @@
 <span id="poll_question" class="poll_question">Nice Poll</span>
 <br/>
 
-<span id="response_buttons"></span>
+<div id="connection_status" class="circle"></div>
+<br/>
+
+<!--<span id="response_buttons"></span>-->
+<form id="response_buttons"></form>
 <br/>
 <canvas id="poll_canvas" height="225">
     Your browser does not support the HTML5 canvas tag.
@@ -79,12 +91,27 @@
     var ctx = poll_canvas.getContext("2d");
     var barColors = ["#FF0000", "#00FF00", "#0000FF", "#FF00FF"];
     var sessionId = document.getElementById('session-id').getAttribute("name");
+    var lastMessageTs = 0;
 
     function initCanvas() {
         ctx.canvas.width = window.innerWidth - (window.innerWidth * 0.01);
     }
 
     console.log('My user id is:', sessionId);//TODO: properly storing userId
+
+    function disableElementsOf(parent) {
+
+      var elements = parent.elements;
+      for (var i = 0, len = elements.length; i < len; ++i) {
+          elements[i].readOnly = true;
+          elements[i].disabled = true;
+      }
+    }
+
+    var responseButtonPressed = function(id, parent) {
+      submitPollResponse(id);
+      disableElementsOf(parent);
+    }
 
     var submitPollResponse = function (id) {
         //curl -X POST --data '{"question": 0, "response": 2}' http://localhost:8125/response
@@ -147,18 +174,23 @@
     }
 
     function createResponseButton(responseButtonsParent, id, text) {
-        //<button id="0" onclick="submitPollResponse(this.id)">Question 0</button>
         var element = document.createElement("input");
         //Assign different attributes to the element.
-        element.type = 'button';
+        element.type = 'radio'; //previously was:'button'
         element.id = 'response-'+id;
         element.className = 'response-btn';
         element.name = 'response-'+id;
-        element.onclick = submitPollResponse.bind(element, id);
+        element.onclick = responseButtonPressed.bind(element, id, responseButtonsParent);
         element.value = text;
+
+        var label = document.createElement("label");
+        label.id = 'label-' + element.id;
+        label.for = element.id;
+        label.innerHTML = text;
 
         //Append the element in page (in span).
         responseButtonsParent.appendChild(element);
+        responseButtonsParent.appendChild(label);
     }
 
     function initializeResponseButtons(pollResults) {
@@ -173,8 +205,9 @@
 
     function processServerSentEvent(event){
         console.log(">>>>>>>", event.data, event.event, arguments);
-        var poll = JSON.parse(event.data);
-        updatePoll(poll);
+        lastMessageTs = Date.now();
+        var parsedEvent = JSON.parse(event.data);
+        updatePoll(parsedEvent);
     }
 
     initCanvas();
