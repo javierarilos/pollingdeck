@@ -2,7 +2,6 @@ function getUsers() {
     return {
         'secret': 'pass',
         'root': 'root',
-        'javi': 'javi',
         'presenter1': 'presenter1',
         'presenter2': 'presenter2'
     }
