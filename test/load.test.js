@@ -4,7 +4,7 @@ var hippie = require('hippie');
 var host = process.env.FEEDBACKER_TEST_HOST || 'localhost:8126';
 
 suite('API server', function() {
-  this.timeout(15000);
+  this.timeout(30000);
 
   suite('#LOGIN', function() {
     test('should return 200 for user/password secret pass', function(done) {
@@ -30,9 +30,8 @@ suite('API server', function() {
     });
   });
 
-  suite.only('#POST RESPONSE', function() {
+  suite('#POST RESPONSE', function() {
     setup(function(done) {
-      console.log('====================0001')
       hippie()
         .header("User-Agent", "hippie")
         .get('http://'+host+'/?user=secret&pass=pass')
@@ -42,11 +41,11 @@ suite('API server', function() {
             done();
         });
     });
-    test('POST /response should return 200-ok', function(done) {
-      console.log('====================0002')
-      var total = 1;
+    test('500 x (POST /response) - should return 200-ok', function(done) {
+      var total = 500;
       var pending = total;
       for(var i = 0; i < total; i++) {
+        console.log(">>About to send. still pending: ",pending);
         hippie()
           .post('http://'+host+'/response')
           .send('{"question": 0, "response": 2}')
@@ -54,6 +53,7 @@ suite('API server', function() {
           .end(function(err, res, body) {
               if (err) throw err;
               pending -= 1;
+              console.log("<<Received response. still pending: ",pending);
               if (pending <= 0) done();
           });
 
