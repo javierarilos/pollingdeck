@@ -10,6 +10,7 @@ var fs = require('fs');
 var path = require('path');
 
 var FEEDBACKER_SESS='fdbckr-sess';
+var UPDATE_DELAY=500; //min time between client updates.
 
 var currentPollId = 0;
 var currentUser;
@@ -17,6 +18,8 @@ var currentPoll;
 var currentQuestion = 0;
 var clientResponses = [];
 var users = 0;
+var lastUpdateClientsTs = 0;
+var scheduledClientUpdate = null;
 
 function getCurrentQuestion() {
     if (!currentPoll || !currentPoll.questions) {
@@ -27,9 +30,24 @@ function getCurrentQuestion() {
 }
 
 function updateClients(responses, object) {
-    responses.forEach(function (response) {
+    function doNotify() {
+      lastUpdateClientsTs = Date.now();
+      scheduledClientUpdate = null;
+      console.log('===> NOW NOTIFYING');
+      responses.forEach(function (response) {
         response.write('data: '+JSON.stringify(object)+'\n\n');
-    })
+      });
+    }
+
+    var shouldUpdateImmediately = (Date.now() - lastUpdateClientsTs) >= UPDATE_DELAY;
+
+    if (!scheduledClientUpdate && shouldUpdateImmediately) {
+      console.log('===> IMMEDIATE NOTIFICATION');
+      doNotify();
+    } else if (!scheduledClientUpdate && !shouldUpdateImmediately) {
+      console.log('===> SCHEDULING NOTIFICATION');
+      scheduledClientUpdate = setTimeout(doNotify, UPDATE_DELAY);
+    }
 }
 
 function getIndex(req, res) {

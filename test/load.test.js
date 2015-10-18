@@ -1,5 +1,6 @@
 var assert = require('assert');
 var hippie = require('hippie');
+var EventSource = require('eventsource');
 
 var host = process.env.FEEDBACKER_TEST_HOST || 'localhost:8126';
 var verbose = process.env.FEEDBACKER_TEST_VERBOSE === 'true' || false;
@@ -65,15 +66,16 @@ suite('API server', function() {
 
     test('Eventually, the responses received via SSE are correct (votes to response 2 === 500)', function (done) {
       var total = 500;
+      var received_updates = 0;
 
       var pending_responses = total;
-
-      var EventSource = require('eventsource');
 
       var es = new EventSource('http://'+host+'/poll?tout=10000');
       es.onmessage = function(e) { // count SSE notifications received, done on finished.
         if (verbose ) console.log("====>>>> event received. pending: ", pending_notifications);
         var responses_to_question_2_count = JSON.parse(e.data).responses[2].count;
+        received_updates += 1;
+        console.log('RECEIVED UPDATES:::::: ', received_updates);
         if(responses_to_question_2_count === 500){
           done();
         }
