@@ -63,21 +63,18 @@ suite('API server', function() {
       doLogin(done);
     });
 
-    test('single client should receive 500 response notifications via SSE', function (done) {
+    test('Eventually, the responses received via SSE are correct (votes to response 2 === 500)', function (done) {
       var total = 500;
 
       var pending_responses = total;
-      var pending_notifications = total + 1; // notifications responses + 1 on subscribe
 
       var EventSource = require('eventsource');
 
       var es = new EventSource('http://'+host+'/poll?tout=10000');
       es.onmessage = function(e) { // count SSE notifications received, done on finished.
-        pending_notifications -=1
         if (verbose ) console.log("====>>>> event received. pending: ", pending_notifications);
-        if (pending_notifications === 0) {
-          var responses_to_question_2_count = JSON.parse(e.data).responses[2].count;
-          assert.equal(responses_to_question_2_count, 500);
+        var responses_to_question_2_count = JSON.parse(e.data).responses[2].count;
+        if(responses_to_question_2_count === 500){
           done();
         }
       };
