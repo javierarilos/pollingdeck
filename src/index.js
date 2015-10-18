@@ -87,9 +87,25 @@ function getUserPage(req, res) {
     return;
 }
 
+function removeElementFrom(arr, ob) {
+  var idx = arr.indexOf(ob);
+  if(idx != -1) {
+    arr.splice(idx, 1);
+  }
+}
+
 function getPoll(req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
     clientResponses.push(res);
+    res.on('close', function(){
+      removeElementFrom(clientResponses, res);
+    });
+
+    res.on('finish', function(){
+      removeElementFrom(clientResponses, res);
+    });
+
+
     console.log('>>>>', req.url, req.headers);
     res.writeHead(200, {'Content-Type': 'text/event-stream'});
     var currQuestion = getCurrentQuestion();
