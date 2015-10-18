@@ -75,7 +75,11 @@ suite('API server', function() {
       es.onmessage = function(e) { // count SSE notifications received, done on finished.
         pending_notifications -=1
         if (verbose ) console.log("====>>>> event received. pending: ", pending_notifications);
-        if (pending_notifications === 0) done();
+        if (pending_notifications === 0) {
+          var responses_to_question_2_count = JSON.parse(e.data).responses[2].count;
+          assert.equal(responses_to_question_2_count, 500);
+          done();
+        }
       };
       es.onerror = function(e) {
         console.log('ERROR! on Event source', e);
