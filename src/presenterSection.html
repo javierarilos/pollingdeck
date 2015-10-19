@@ -13,17 +13,54 @@
 <input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest('next')">
 <br/>
 <!--<div class="circle">-->
-<div><i class="material-icons">perm_identity</i><span id="connected_count"></span></div>
-<div><!--<div class="circle" id="latency_sect">--><li><i class="material-icons">swap_horiz</i><span id="latency_txt">750ms</span></li></div>
+<div style="float:left">
+    <i class="material-icons">perm_identity</i>
+    <span id="connected_count">1 connected user</span>
+</div>
+<div style="float:left;margin-left:25px">
+    <i class="material-icons" id="latency_icon">swap_horiz</i>
+    <span id="latency_txt"></span>
+</div>
 <script type="text/javascript">
+
+  var PING_INTERVAL=3000;
+  var submitPingRequest = function () {//type: next || prev
+      var pingReqTs = Date.now();
+      function onError(e){
+        console.error('Error pinging server...', e);
+        latency_icon.style.backgroundColor = 'red';
+        latency_txt.innerHTML = 'ERROR PINGING SERVER!!';
+        setTimeout(submitPingRequest, PING_INTERVAL);
+      }
+      function onLoad(e) {
+        var pingLatency = Date.now() - pingReqTs;
+        var color = 'inherit';
+        if (1000 < pingLatency && pingLatency <= 2000) {
+          color = 'orange';
+        } else if (pingLatency > 2000) {
+          color = 'green';
+        }
+        latency_icon.style.backgroundColor = color;
+        latency_txt.innerHTML = pingLatency+'ms';
+        setTimeout(submitPingRequest, PING_INTERVAL);
+
+      }
+
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.open("POST",'ping',true);
+      xmlhttp.setRequestHeader("Content-type","application/json");
+      xmlhttp.upload.addEventListener("load", onLoad);
+      xmlhttp.upload.addEventListener("error", onError);
+      xmlhttp.upload.addEventListener("abort", onError);
+      xmlhttp.send('{"sessionId": "'+sessionId+'"}');
+  };
+
+  submitPingRequest();
+
   source.addEventListener('message', function(event) {
     var poll = JSON.parse(event.data);
     if(poll.usersCount) {
       connected_count.innerHTML = poll.usersCount+" connected users."
     }
-
   }, false);
-
-
-
 </script>
