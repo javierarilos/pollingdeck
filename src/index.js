@@ -13,6 +13,10 @@ var FEEDBACKER_SESS='fdbckr-sess';
 var UPDATE_DELAY=500; //min time between client updates.
 http.globalAgent.maxSockets = 9999;
 
+var cachedPageHtml=null;
+var cachedPresenterSectionHtml=null;
+var productionMode = false;
+
 var currentPollId = 0;
 var currentUser;
 var currentPoll;
@@ -56,14 +60,14 @@ function updateClients(responses, object) {
 function getIndex(req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
     if (auth.isAuthorized(req)) {
-        var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
+        var page = productionMode ? cachedPageHtml : fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
         currentUser = req.parsedUrl.query.user;
         currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
         var sessionId = sessionManager.newPresenterSession(currentUser);
         page = page.replace('<!-- session-id -->', sessionId);
         //TODO: render an html piece in a page.
-        var presenterSectionHtml = fs.readFileSync(path.join(__dirname, 'presenterSection.html'), {encoding: 'utf8'});
-        page = page.replace('<!-- presenter-sect -->', presenterSectionHtml);
+        var presenterHtml = productionMode ? cachedPresenterSectionHtml : fs.readFileSync(path.join(__dirname, 'presenterSection.html'), {encoding: 'utf8'}) + "<br/><br/><br/>>> production mode is OFF <<";
+        page = page.replace('<!-- presenter-sect -->', presenterHtml);
 
         res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_SESS+'='+sessionId});
         return res.end(page);
@@ -82,7 +86,7 @@ function getUserPage(req, res) {
 
     console.log('========>>> generating user page.');
     userId += 1;
-    var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
+    var page = productionMode ? cachedPageHtml : fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
     page = page.replace('<!-- session-id -->', 'happy-user-'+userId);
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(page);
@@ -213,6 +217,15 @@ router.post('/ping', postPing);
 
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8126;
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0";
+
+if (process.env.OPENSHIFT_NODEJS_PORT || process.env.PRODUCTION_MODE_ON) {
+  productionMode = true;
+  cachedPageHtml = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
+  cachedPresenterSectionHtml = fs.readFileSync(path.join(__dirname, 'presenterSection.html'), {encoding: 'utf8'});
+  console.log('---------- Production mode is ON. html is loaded once and not updated.');
+} else {
+  console.log('---------- Production mode is OFF. html is loaded on each request.');
+}
 
 http.createServer(router.route()).listen(server_port, server_ip_address);
 console.log('Server running at http://'+server_ip_address+':'+server_port+'/');
