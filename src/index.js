@@ -11,22 +11,25 @@ var path = require('path');
 
 var FEEDBACKER_SESS='fdbckr-sess';
 var UPDATE_DELAY=500; //min time between client updates.
+http.globalAgent.maxSockets = 9999;
 
 var currentPollId = 0;
 var currentUser;
 var currentPoll;
 var currentQuestion = 0;
 var clientResponses = [];
-var users = 0;
+var userId = 0;
+var usersCount = 0;
 var lastUpdateClientsTs = 0;
 var scheduledClientUpdate = null;
 
 function getCurrentQuestion() {
-    if (!currentPoll || !currentPoll.questions) {
+    if (!currentPoll || !currentPoll.questions || !currentPoll.questions[currentQuestion]) {
         return null;
     }
-
-    return currentPoll.questions[currentQuestion];
+    var currentQuestionObj = currentPoll.questions[currentQuestion];
+    currentQuestionObj.usersCount = usersCount;
+    return currentQuestionObj;
 }
 
 function updateClients(responses, object) {
@@ -52,16 +55,15 @@ function updateClients(responses, object) {
 
 function getIndex(req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
-    var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
     if (auth.isAuthorized(req)) {
+        var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
         currentUser = req.parsedUrl.query.user;
         currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
         var sessionId = sessionManager.newPresenterSession(currentUser);
         page = page.replace('<!-- session-id -->', sessionId);
         //TODO: render an html piece in a page.
-        var presenterButtonsHtml = '<span>Your session is: '+sessionId+'<br/></span></span><input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest(\'prev\')">' +
-            '<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest(\'next\')">';
-        page = page.replace('<!-- presenter-sect -->', presenterButtonsHtml);
+        var presenterSectionHtml = fs.readFileSync(path.join(__dirname, 'presenterSection.html'), {encoding: 'utf8'});
+        page = page.replace('<!-- presenter-sect -->', presenterSectionHtml);
 
         res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_SESS+'='+sessionId});
         return res.end(page);
@@ -79,9 +81,9 @@ function getUserPage(req, res) {
     }
 
     console.log('========>>> generating user page.');
-    users += 1;
+    userId += 1;
     var page = fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
-    page = page.replace('<!-- session-id -->', 'happy-user-'+users);
+    page = page.replace('<!-- session-id -->', 'happy-user-'+userId);
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(page);
     return;
@@ -96,15 +98,17 @@ function removeElementFrom(arr, ob) {
 
 function getPoll(req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
+    usersCount += 1;
     clientResponses.push(res);
+
     res.on('close', function(){
+      usersCount -= 1;
       removeElementFrom(clientResponses, res);
     });
-
     res.on('finish', function(){
+      usersCount -= 1;
       removeElementFrom(clientResponses, res);
     });
-
 
     console.log('>>>>', req.url, req.headers);
     res.writeHead(200, {'Content-Type': 'text/event-stream'});

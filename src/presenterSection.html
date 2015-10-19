@@ -1,0 +1,15 @@
+
+<input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest('prev')">
+<input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest('next')">
+<br/>
+<label id="connected_count"></label>
+<script type="text/javascript">
+  source.addEventListener('message', function(event) {
+    var poll = JSON.parse(event.data);
+    if(poll.usersCount) {
+      connected_count.innerHTML = poll.usersCount+" connected users."
+    }
+
+  }, false);
+
+</script>

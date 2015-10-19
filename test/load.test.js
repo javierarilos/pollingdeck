@@ -75,7 +75,7 @@ suite('API server', function() {
         if (verbose ) console.log("====>>>> event received. pending: ", pending_notifications);
         var responses_to_question_2_count = JSON.parse(e.data).responses[2].count;
         received_updates += 1;
-        console.log('RECEIVED UPDATES:::::: ', received_updates);
+        if (verbose ) console.log('RECEIVED UPDATES:::::: ', received_updates);
         if(responses_to_question_2_count === 500){
           done();
         }
