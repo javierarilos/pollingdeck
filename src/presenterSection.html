@@ -1,8 +1,20 @@
+<style media="screen" type="text/css">
+    .circle {
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      background-color: green;
+    }
+
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
 <input type="button" id="page-prev" class="response-btn" name="prev" value="< prev" onclick="submitPagingRequest('prev')">
 <input type="button" id="page-next" class="response-btn" name="next" value="next >" onclick="submitPagingRequest('next')">
 <br/>
-<label id="connected_count"></label>
+<!--<div class="circle">-->
+<div><i class="material-icons">perm_identity</i><span id="connected_count"></span></div>
+<div><!--<div class="circle" id="latency_sect">--><li><i class="material-icons">swap_horiz</i><span id="latency_txt">750ms</span></li></div>
 <script type="text/javascript">
   source.addEventListener('message', function(event) {
     var poll = JSON.parse(event.data);
@@ -11,5 +23,7 @@
     }
 
   }, false);
+
+
 
 </script>
