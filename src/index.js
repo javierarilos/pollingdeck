@@ -149,6 +149,23 @@ function postResponse (req, res) {
 
 }
 
+function postPing(req, res) {
+  var urlPath = req.parsedUrl.pathname;
+  var pingRequest = req.json;
+
+  if (! sessionManager.getSession(pingRequest.sessionId)) {
+      var msg = '%%%==> pingRequest NOT authorized: sessionId: '+pingRequest.sessionId;
+      console.log(msg, pingRequest);
+
+      res.writeHead(401, msg, {'Content-Type': 'text/html'});
+      return res.end();
+  }
+
+  res.writeHead(200, "Done.", {'Content-Type': 'text/html'});
+  res.end();
+
+}
+
 function postPagination(req, res){
     //curl -X POST --data '{"sessionId": "lksdjflsdkjf"}' http://localhost:8125/prev -v
     //curl -X POST --data '{"sessionId": "lksdjflsdkjf"}' http://localhost:8125/next -v
@@ -157,7 +174,7 @@ function postPagination(req, res){
     var pagingRequest = req.json;
 
     if (! sessionManager.getSession(pagingRequest.sessionId)) {
-        var msg = '%%%==> pagingRequest NOT authorized: sessionId: '+pagingRequest.sessionId+' presenterId: ' + sessionManager.getSession(pagingRequest.sessionId);
+        var msg = '%%%==> pagingRequest NOT authorized: sessionId: '+pagingRequest.sessionId;
         console.log(msg, pagingRequest);
 
         res.writeHead(401, msg, {'Content-Type': 'text/html'});
@@ -192,6 +209,7 @@ router.get('/', getIndex);
 router.post('/response', postResponse);
 router.post('/next', postPagination);
 router.post('/prev', postPagination);
+router.post('/ping', postPing);
 
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8126;
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0";
