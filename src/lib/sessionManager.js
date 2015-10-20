@@ -11,6 +11,10 @@ function getSession(sessionId) {
     return presenterSessions[sessionId];
 }
 
+function existsSession(sessionId) {
+    return getSession(sessionId) == null || getSession(sessionId) == undefined;
+}
+
 function getSessionByUser(user) {
     var session;
     for (var sessionId in presenterSessions) {
@@ -24,4 +28,5 @@ function getSessionByUser(user) {
 
 module.exports.newPresenterSession = newPresenterSession;
 module.exports.getSession = getSession;
+module.exports.existsSession = getSession;
 module.exports.getSessionByUser = getSessionByUser;

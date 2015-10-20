@@ -57,13 +57,25 @@ function updateClients(responses, object) {
     }
 }
 
+function login(req, res) {
+  if (auth.isAuthorized(req)) {
+      currentUser = req.parsedUrl.query.user;
+      currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
+      var sessionId = sessionManager.newPresenterSession(currentUser);
+      res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_SESS+'='+sessionId});
+      return res.end('');
+  } else {
+      res.writeHead(401, {'Content-Type': 'text/html'});
+      return res.end('Unauthorized');
+  }
+
+}
+
 function getIndex(req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
-    if (auth.isAuthorized(req)) {
+    var sessionId = req.cookies[FEEDBACKER_SESS];
+    if (sessionManager.existsSession(sessionId)) {
         var page = productionMode ? cachedPageHtml : fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
-        currentUser = req.parsedUrl.query.user;
-        currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
-        var sessionId = sessionManager.newPresenterSession(currentUser);
         page = page.replace('<!-- session-id -->', sessionId);
         //TODO: render an html piece in a page.
         var presenterHtml = productionMode ? cachedPresenterSectionHtml : fs.readFileSync(path.join(__dirname, 'presenterSection.html'), {encoding: 'utf8'}) + "<br/><br/><br/>>> production mode is OFF <<";
@@ -101,7 +113,6 @@ function removeElementFrom(arr, ob) {
 }
 
 function getPoll(req, res) {
-    console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
     usersCount += 1;
     clientResponses.push(res);
 
@@ -116,9 +127,7 @@ function getPoll(req, res) {
 
     console.log('>>>>', req.url, req.headers);
     res.writeHead(200, {'Content-Type': 'text/event-stream'});
-    var currQuestion = getCurrentQuestion();
-    console.log('#############################################################currQuestion', currQuestion);
-    updateClients(clientResponses, currQuestion);
+    updateClients(clientResponses, getCurrentQuestion());
     return;
 }
 
@@ -127,7 +136,6 @@ function postResponse (req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
     var pollResponse = req.json;
     console.log('***** response: question:', pollResponse.question, 'response:', pollResponse.response);
-    console.log('***** req.cookies:', req.headers.cookie);
     if(typeof pollResponse.question === 'number' && typeof pollResponse.response === 'number' ) {
         console.log('***** correct response: question:', pollResponse.question, 'response:', pollResponse.response);
 
@@ -207,9 +215,11 @@ function postPagination(req, res){
 
 
 router.get('/index.html', getIndex);
+router.get('/login', login);
+router.get('/presenter', getIndex);
 router.get('/poll', getPoll);
 router.get('/join', getUserPage);
-router.get('/', getIndex);
+router.get('/', getUserPage);
 router.post('/response', postResponse);
 router.post('/next', postPagination);
 router.post('/prev', postPagination);
