@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hi there</title>
+</head>
+<body>
+
+  <script type="text/javascript">
+    function sendLogin() {
+      function showError(e) {
+        err_msg.innerHTML = e;
+      }
+      function onLoad (e) {
+        if (e.target.status === 200) {
+          window.location = "/presenter";
+          return;
+        } else {
+          showError("Status code from server:" + e.target.statusText + ":" + e.target.status);
+        }
+      }
+      function onError (e) {
+        console.log("Error::::. ", e);
+        showError("Error connecting to server: " + e.toString());
+      }
+
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.open("GET",'login?user='+user.value+'&pass='+pass.value,true);
+      xmlhttp.setRequestHeader("Content-type","text/plain");
+      xmlhttp.addEventListener("load", onLoad);
+      xmlhttp.addEventListener("error", onError);
+      xmlhttp.addEventListener("abort", onError);
+      xmlhttp.send();
+    }
+
+  </script>
+  User: <input id="user" type="text" name="fname"><br>
+  Pass: <input id="pass" type="password" name="lname"><br>
+  <input type="button" onclick="sendLogin()">
+  <label id="err_msg"></label>
+</body>
+</html>

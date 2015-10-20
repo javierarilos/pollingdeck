@@ -213,9 +213,17 @@ function postPagination(req, res){
     return;
 }
 
+function newSession(req, res) {
 
-router.get('/index.html', getIndex);
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.end(fs.readFileSync(path.join(__dirname, 'newSession.html'), {encoding: 'utf8'}));
+
+}
+
+
+router.get('/new', newSession);
 router.get('/login', login);
+router.get('/index.html', getIndex);
 router.get('/presenter', getIndex);
 router.get('/poll', getPoll);
 router.get('/join', getUserPage);
