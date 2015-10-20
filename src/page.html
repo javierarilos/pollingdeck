@@ -71,6 +71,7 @@
 
 <script>
     var currentPoll = null;
+    var canvasWidth = 0;
 
     function getCurrentPollId(){
         return currentPoll && currentPoll.id;
@@ -81,7 +82,9 @@
     var sessionId = document.getElementById('session-id').getAttribute("name");
 
     function initCanvas() {
-        ctx.canvas.width = window.innerWidth - (window.innerWidth * 0.01);
+        var width = window.innerWidth;
+        ctx.canvas.width = width - (width * 0.01);
+        return width;
     }
 
     console.log('My user id is:', sessionId);//TODO: properly storing userId
@@ -113,15 +116,15 @@
         return styleSize || computedFontSize || 14;
     }
 
-    function paintQuestionResult(i, question, count) {
+    function paintQuestionResult(i, question, count, totalCount, canvasWidth) {
         //ctx.fillStyle = "#FFFFFF";
 
         ctx.fillStyle = barColors[i];
-        ctx.fillRect(5, 5 + (55 * (i + 0)), 25 * count, 50);
+        ctx.fillRect(5, 5 + (55 * (i + 0)), (count / totalCount) * canvasWidth, 50);
         var fontSize = getCurrentButtonsFont();
         ctx.font = fontSize + "px Courier, monospace";
         ctx.fillStyle = "#000000";
-        ctx.fillText(question + " ["+count+"]", 10, 5 + (55 * (i + 0)) + 25);
+        ctx.fillText(question + " ["+count+"/"+totalCount+"]", 10, 5 + (55 * (i + 0)) + 25);
     }
 
     function updatePoll(poll) {
@@ -139,10 +142,11 @@
         var responses = pollResults.responses;
         ctx.fillStyle = "#f9f9f9";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        var responsesTotalCount = responses.reduce(function(total, response){ return total + response.count }, 0);
         for(var i = 0; i < responses.length; i++) {
             var currResult = responses[i];
             console.log('updating result: ', currResult.id, currResult.text, currResult.count);
-            paintQuestionResult(currResult.id, currResult.text, currResult.count);
+            paintQuestionResult(currResult.id, currResult.text, currResult.count, responsesTotalCount, canvasWidth);
         }
     }
 
@@ -177,13 +181,13 @@
         updatePoll(poll);
     }
 
-    initCanvas();
+    canvasWidth = initCanvas();
 
     var source = new EventSource('/poll?tout=10000');
     source.addEventListener('message', processServerSentEvent, false);
 
     window.onresize = function () {
-        initCanvas();
+        canvasWidth = initCanvas();
         updatePollResults(currentPoll);
     }
 
