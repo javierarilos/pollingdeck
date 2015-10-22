@@ -96,6 +96,19 @@
         xmlhttp.send('{"question": '+getCurrentPollId()+', "response": '+id+'}');
     };
 
+    var disableResponseButtons = function () {
+        var responseButtons = response_buttons.children;
+        for(var i=0 ; i < responseButtons.length ; i++) {
+            responseButtons[i].disabled = true;
+        };
+    }
+
+    var responseButtonClicked = function (id) {
+        console.log('>>>>>>>>>>>>> responseButtonClicked!!!!')
+        submitPollResponse(id);
+        disableResponseButtons();
+    }
+
     var submitPagingRequest = function (type) {//type: next || prev
         //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/prev -v
         //curl -X POST --data '{"userId": "lksdjflsdkjf"}' http://localhost:8125/next -v
@@ -157,7 +170,7 @@
         element.id = 'response-'+id;
         element.className = 'response-btn';
         element.name = 'response-'+id;
-        element.onclick = submitPollResponse.bind(element, id);
+        element.onclick = responseButtonClicked.bind(element, id);
         element.value = text;
 
         //Append the element in page (in span).
