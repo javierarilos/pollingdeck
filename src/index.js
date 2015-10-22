@@ -143,7 +143,8 @@ function postResponse (req, res) {
             console.log('*** question and response found. counting.');
             question.responses[pollResponse.response].count += 1;
             updateClients(clientResponses, question);
-            res.writeHead(200, "OK", {'Content-Type': 'text/html'});
+            var poll_id = "poll_" + question.id;
+            res.writeHead(200, "OK", {'Content-Type': 'text/html', 'Set-Cookie': poll_id+'='+poll_id});
         } else {
             var msg = "Not found: curr question: "+question.id+" max response: "+ question.responses.length -1;
             console.log('*** '+ msg);

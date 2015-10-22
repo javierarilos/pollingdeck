@@ -104,7 +104,6 @@
     }
 
     var responseButtonClicked = function (id) {
-        console.log('>>>>>>>>>>>>> responseButtonClicked!!!!')
         submitPollResponse(id);
         disableResponseButtons();
     }
@@ -177,6 +176,11 @@
         responseButtonsParent.appendChild(element);
     }
 
+    function alreadyResponded(questionId) {
+      var poll_id = "poll_" + questionId;
+      return poll_id in cookies;
+    }
+
     function initializeResponseButtons(pollResults) {
         while (response_buttons.firstChild) { //remove all existing buttons.
             response_buttons.removeChild(response_buttons.firstChild);
@@ -185,6 +189,11 @@
         pollResults.responses.forEach(function(question){
             createResponseButton(response_buttons, question.id, question.text);
         });
+
+        if (alreadyResponded(pollResults.id)) {
+            disableResponseButtons();
+        }
+
     }
 
     function processServerSentEvent(event){
@@ -193,7 +202,28 @@
         updatePoll(poll);
     }
 
+    function parseCookies() {
+        var parsedCookies = {};
+        var cookies = document.cookie;
+        if (cookies) {
+            var cookiesList = cookies.split(';').map(function (cookie) {
+                return cookie.split('=');
+            });
+
+            console.log('////////////////////// splitted cookies:', cookiesList);
+            for (var i = cookiesList.length - 1; i > -1; i--) {
+                var cookie = cookiesList[i];
+                var cookieName = cookie[0].trim();
+                var cookieValue = cookie[1].trim();
+                parsedCookies[cookieName] = cookieValue;
+            }
+        }
+        return parsedCookies;
+    }
+
     canvasWidth = initCanvas();
+
+    var cookies = parseCookies();
 
     var source = new EventSource('/poll?tout=10000');
     source.addEventListener('message', processServerSentEvent, false);

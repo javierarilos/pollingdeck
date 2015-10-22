@@ -68,7 +68,6 @@ var router = {
         var parsedCookies = {};
         var reqCookies = req.headers.cookie;
         if (reqCookies) {
-            console.log('))))))))))))))))))))))) parsing cookies:', reqCookies);
             var cookiesList = reqCookies.split(';').map(function (cookie) {
                 return cookie.split('=');
             });
