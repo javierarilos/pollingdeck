@@ -1,5 +1,5 @@
 {
-  "name": "feedbacker",
+  "name": "pollingdeck",
   "version": "1.0.0",
   "description": "Online interactive feedback application.",
   "main": "src/index.js",

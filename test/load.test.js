@@ -2,8 +2,8 @@ var assert = require('assert');
 var hippie = require('hippie');
 var EventSource = require('eventsource');
 
-var host = process.env.FEEDBACKER_TEST_HOST || 'localhost:8126';
-var verbose = process.env.FEEDBACKER_TEST_VERBOSE === 'true' || false;
+var host = process.env.POLLINGDECK_TEST_HOST || 'localhost:8126';
+var verbose = process.env.POLLINGDECK_TEST_VERBOSE === 'true' || false;
 
 suite('API server', function() {
   this.timeout(30000);

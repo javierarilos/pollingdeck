@@ -9,7 +9,7 @@ var http = require('http');
 var fs = require('fs');
 var path = require('path');
 
-var FEEDBACKER_SESS='fdbckr-sess';
+var POLLINGDECK_SESS='fdbckr-sess';
 var UPDATE_DELAY=500; //min time between client updates.
 http.globalAgent.maxSockets = 9999;
 
@@ -62,7 +62,7 @@ function login(req, res) {
       currentUser = req.parsedUrl.query.user;
       currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
       var sessionId = sessionManager.newPresenterSession(currentUser);
-      res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_SESS+'='+sessionId});
+      res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': POLLINGDECK_SESS+'='+sessionId});
       return res.end('');
   } else {
       res.writeHead(401, {'Content-Type': 'text/html'});
@@ -73,7 +73,7 @@ function login(req, res) {
 
 function getIndex(req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
-    var sessionId = req.cookies[FEEDBACKER_SESS];
+    var sessionId = req.cookies[POLLINGDECK_SESS];
     if (sessionManager.existsSession(sessionId)) {
         var page = productionMode ? cachedPageHtml : fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
         page = page.replace('<!-- session-id -->', sessionId);
@@ -81,7 +81,7 @@ function getIndex(req, res) {
         var presenterHtml = productionMode ? cachedPresenterSectionHtml : fs.readFileSync(path.join(__dirname, 'presenterSection.html'), {encoding: 'utf8'}) + "<br/><br/><br/>>> production mode is OFF <<";
         page = page.replace('<!-- presenter-sect -->', presenterHtml);
 
-        res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': FEEDBACKER_SESS+'='+sessionId});
+        res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': POLLINGDECK_SESS+'='+sessionId});
         return res.end(page);
     } else {
         res.writeHead(401, {'Content-Type': 'text/html'});
