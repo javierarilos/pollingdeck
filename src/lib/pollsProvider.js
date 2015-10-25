@@ -9,7 +9,7 @@ var defaultPollDefinitions = [
         questions: [
             {
                 type: 'update',
-                title: 'Do you like JS?',
+                title: 'Do you really like JS?',
                 id: 0,
                 responses: [
                     {
@@ -19,12 +19,12 @@ var defaultPollDefinitions = [
                     },
                     {
                         id: 1,
-                        text: "Not bad...",
+                        text: "Not a lot but allows coding everywhere",
                         count: 0
                     },
                     {
                         id: 2,
-                        text: "Not but allows coding everywhere",
+                        text: "Not bad...",
                         count: 0
                     },
                     {
@@ -36,36 +36,8 @@ var defaultPollDefinitions = [
             },
             {
                 type: 'update',
-                title: 'What language would you like to use...',
+                title: 'Do you have experience with metaprogramming...',
                 id: 1,
-                responses: [
-                    {
-                        id: 0,
-                        text: "JS always!",
-                        count: 0
-                    },
-                    {
-                        id: 1,
-                        text: "Python, batteries included",
-                        count: 0
-                    },
-                    {
-                        id: 2,
-                        text: "Java (no XML) for the win",
-                        count: 0
-                    },
-                    {
-                        id: 3,
-                        text: "I'll go functional!",
-                        count: 0
-                    }
-                ]
-            },
-
-            {
-                type: 'update',
-                title: 'Have you experience with metaprogramming...',
-                id: 2,
                 responses: [
                     {
                         id: 0,
@@ -74,12 +46,12 @@ var defaultPollDefinitions = [
                     },
                     {
                         id: 1,
-                        text: "Just played a bit",
+                        text: "From time to time, not in JS",
                         count: 0
                     },
                     {
                         id: 2,
-                        text: "I used it sometimes",
+                        text: "From time to time, in JS",
                         count: 0
                     },
                     {
@@ -93,7 +65,7 @@ var defaultPollDefinitions = [
             {
                 type: 'update',
                 title: 'Have you ever used eval?',
-                id: 3,
+                id: 2,
                 responses: [
                     {
                         id: 0,
@@ -120,7 +92,7 @@ var defaultPollDefinitions = [
             {
                 type: 'update',
                 title: "What's your opinion on ES6?",
-                id: 4,
+                id: 3,
                 responses: [
                     {
                         id: 0,
@@ -137,11 +109,11 @@ var defaultPollDefinitions = [
                         text: "I hate classes!",
                         count: 0
                     },
-                            {
-                                id: 3,
-                                text: "JS's becoming too complex",
-                                count: 0
-                            }
+                    {
+                        id: 3,
+                        text: "JS's becoming too complex",
+                        count: 0
+                    }
                 ]
             }
         ]
