@@ -26,6 +26,7 @@ var userId = 0;
 var usersCount = 0;
 var lastUpdateClientsTs = 0;
 var scheduledClientUpdate = null;
+var keepAliveSseInterval = null;
 
 function getCurrentQuestion() {
     if (!currentPoll || !currentPoll.questions || !currentPoll.questions[currentQuestion]) {
@@ -130,7 +131,16 @@ function getPoll(req, res) {
 
     console.log('>>>>', req.url, req.headers);
     res.writeHead(200, {'Content-Type': 'text/event-stream'});
+
     updateClients(clientResponses, getCurrentQuestion());
+
+    if (keepAliveSseInterval) {
+      clearInterval(keepAliveSseInterval);
+    }
+    keepAliveSseInterval = setInterval(function(){
+      updateClients(clientResponses, getCurrentQuestion());
+    }, 15000)
+
     return;
 }
 
