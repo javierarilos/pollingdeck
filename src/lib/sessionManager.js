@@ -11,6 +11,10 @@ function getSession(sessionId) {
     return presenterSessions[sessionId];
 }
 
+function getSessions() {
+    return presenterSessions;
+}
+
 function existsSession(sessionId) {
     return getSession(sessionId) == null || getSession(sessionId) == undefined;
 }
@@ -28,5 +32,6 @@ function getSessionByUser(user) {
 
 module.exports.newPresenterSession = newPresenterSession;
 module.exports.getSession = getSession;
+module.exports.getSessions = getSessions;
 module.exports.existsSession = getSession;
 module.exports.getSessionByUser = getSessionByUser;

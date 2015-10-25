@@ -72,11 +72,10 @@ var router = {
                 return cookie.split('=');
             });
 
-            console.log('////////////////////// splitted cookies:', cookiesList);
             for (var i = cookiesList.length - 1; i > -1; i--) {
                 var cookie = cookiesList[i];
-                var cookieName = cookie[0];
-                var cookieValue = cookie[1];
+                var cookieName = cookie[0] ? cookie[0].trim() : "";
+                var cookieValue = cookie[1] ? cookie[1].trim() : "";
                 parsedCookies[cookieName] = cookieValue;
             }
         }

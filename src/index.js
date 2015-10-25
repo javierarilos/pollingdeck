@@ -59,12 +59,14 @@ function updateClients(responses, object) {
 
 function login(req, res) {
   if (auth.isAuthorized(req)) {
+      console.log('>>>>>>>>>>> LOGIN AUTHORIZED');
       currentUser = req.parsedUrl.query.user;
       currentPoll = pollsProvider.initPoll(currentUser, currentPollId);
       var sessionId = sessionManager.newPresenterSession(currentUser);
       res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': POLLINGDECK_SESS+'='+sessionId});
       return res.end('');
   } else {
+      console.log('>>>>>>>>>>> LOGIN NOT-AUTHORIZED');
       res.writeHead(401, {'Content-Type': 'text/html'});
       return res.end('Unauthorized');
   }
@@ -73,6 +75,7 @@ function login(req, res) {
 
 function getIndex(req, res) {
     console.log('%%%%%%%%%%%%%%%% cookies:', req.cookies);
+    console.log("EXISTING SESSIONS:", sessionManager.getSessions());
     var sessionId = req.cookies[POLLINGDECK_SESS];
     if (sessionManager.existsSession(sessionId)) {
         var page = productionMode ? cachedPageHtml : fs.readFileSync(path.join(__dirname, 'page.html'), {encoding: 'utf8'});
@@ -85,7 +88,7 @@ function getIndex(req, res) {
         return res.end(page);
     } else {
         res.writeHead(401, {'Content-Type': 'text/html'});
-        return res.end('Unauthorized');
+        return res.end('Unauthorized. Your session was not found.');
     }
 }
 
@@ -221,10 +224,23 @@ function newSession(req, res) {
 
 }
 
+function resetSession(req, res) {
+
+    if (auth.isAuthorized(req)) {
+        currentUser = null;
+        currentPoll = null;
+        var sessionId = null;
+        res.writeHead(200, {'Content-Type': 'text/html', 'Set-Cookie': POLLINGDECK_SESS+'=deleted'});
+        return res.end('reset OK.');
+    } else {
+        res.writeHead(401, {'Content-Type': 'text/html'});
+        return res.end('Unauthorized');
+    }
+}
 
 router.get('/new', newSession);
+router.get('/resetsession', resetSession);
 router.get('/login', login);
-router.get('/index.html', getIndex);
 router.get('/presenter', getIndex);
 router.get('/poll', getPoll);
 router.get('/join', getUserPage);
@@ -233,6 +249,7 @@ router.post('/response', postResponse);
 router.post('/next', postPagination);
 router.post('/prev', postPagination);
 router.post('/ping', postPing);
+
 
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8126;
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0";

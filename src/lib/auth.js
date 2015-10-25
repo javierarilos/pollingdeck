@@ -17,6 +17,7 @@ function authorize(user, pass) {
 function isAuthorized(req) {
     var user=req.parsedUrl.query.user;
     var pass=req.parsedUrl.query.pass;
+    console.log('Trying to authorize:::: ', user, pass);
     return authorize(user, pass);
 }
 
