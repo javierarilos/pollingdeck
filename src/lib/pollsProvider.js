@@ -24,7 +24,7 @@ var defaultPollDefinitions = [
                     },
                     {
                         id: 2,
-                        text: "Not but allows coding everywhere",
+                        text: "No, but allows coding everywhere",
                         count: 0
                     },
                     {
@@ -36,7 +36,7 @@ var defaultPollDefinitions = [
             },
             {
                 type: 'update',
-                title: 'If you could choose...',
+                title: 'What programming language would you like to use...',
                 id: 1,
                 responses: [
                     {
@@ -90,7 +90,7 @@ var defaultPollDefinitions = [
             },
             {
                 type: 'update',
-                title: "What's your opinion on ES6?",
+                title: "What do you think your opinion about ES6?",
                 id: 3,
                 responses: [
                     {
@@ -108,11 +108,11 @@ var defaultPollDefinitions = [
                         text: "I hate classes!",
                         count: 0
                     },
-                            {
-                                id: 3,
-                                text: "JS's becoming too complex",
-                                count: 0
-                            }
+                    {
+                        id: 3,
+                        text: "JS's becoming too complex",
+                        count: 0
+                    }
                 ]
             }
         ]
