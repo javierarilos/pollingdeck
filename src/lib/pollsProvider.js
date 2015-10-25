@@ -36,7 +36,7 @@ var defaultPollDefinitions = [
             },
             {
                 type: 'update',
-                title: 'If you could choose...',
+                title: 'What language would you like to use...',
                 id: 1,
                 responses: [
                     {
@@ -56,15 +56,44 @@ var defaultPollDefinitions = [
                     },
                     {
                         id: 3,
-                        text: "I love functional",
+                        text: "I'll go functional!",
                         count: 0
                     }
                 ]
             },
+
+            {
+                type: 'update',
+                title: 'Have you experience with metaprogramming...',
+                id: 2,
+                responses: [
+                    {
+                        id: 0,
+                        text: "I never metaprogrammed",
+                        count: 0
+                    },
+                    {
+                        id: 1,
+                        text: "Just played a bit",
+                        count: 0
+                    },
+                    {
+                        id: 2,
+                        text: "I used it sometimes",
+                        count: 0
+                    },
+                    {
+                        id: 3,
+                        text: "Very frequently",
+                        count: 0
+                    }
+                ]
+            },
+
             {
                 type: 'update',
                 title: 'Have you ever used eval?',
-                id: 2,
+                id: 3,
                 responses: [
                     {
                         id: 0,
@@ -91,7 +120,7 @@ var defaultPollDefinitions = [
             {
                 type: 'update',
                 title: "What's your opinion on ES6?",
-                id: 3,
+                id: 4,
                 responses: [
                     {
                         id: 0,
