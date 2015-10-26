@@ -96,7 +96,11 @@ function getIndex(req, res) {
 function getUserPage(req, res) {
     if (!getCurrentQuestion()) {
         res.writeHead(404, {'Content-Type': 'text/html'});
-        res.end('<body>No presenter session initialized yet. </br> Please try later.<body/>');
+        res.end('<body style="font-family:monospace">No presenter session initialized yet. </br> Please try later.<br/>'+
+        '<br/>You can check the code on GitHub<br/>'+
+        '<a href="https://github.com/javierarilos/pollingdeck" target="_blank"  align="middle">'+
+        '<img src="https://github.com/fluidicon.png" '+
+        'alt="pollingdeck GitHub" height="24" width="24" align="middle">pollingdeck @ GitHub</a><body/>');
         return;
     }
 
